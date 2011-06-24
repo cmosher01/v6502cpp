@@ -100,12 +100,12 @@ void setSeg(int iseg, bool up) {
 	s.pulldown = !up;
 }
 
-void recalc(const std::vector<int>& s);
+void recalc(const std::set<int>& s);
 
 void setSegRC(int iseg, bool up) {
 	setSeg(iseg,up);
-	std::vector<int> s;
-	s.push_back(iseg);
+	std::set<int> s;
+	s.insert(iseg);
 	recalc(s);
 }
 
@@ -136,8 +136,88 @@ bool getGroupValue(const std::set<int>& s) {
 	return false;
 }
 
-void recalc(const std::vector<int>& s) {
-	/* TODO */
+void addToGroup(int n, std::set<int>& s) {
+	s.insert(n);
+	if (n==VCC || n==VSS) {
+		return;
+	}
+	seg& sg = segs[n];
+	for (std::vector<int>::const_iterator itrn = sg.c1c2s.begin(); itrn != sg.c1c2s.end(); ++itrn) {
+		const trn& t = trns[*itrn];
+		if (t.on) {
+			if (t.c1==n) {
+				addToGroup(t.c2,s);
+			} else if (t.c2==n) {
+				addToGroup(t.c1,s);
+			}
+		}
+	}
+}
+
+void addRecalc(int n, std::set<int>& rcl) {
+	if (n==VCC || n==VSS) {
+		return;
+	}
+	rcl.insert(n);
+}
+
+void onTrans(trn& t, std::set<int>& rcl) {
+	if (t.on) {
+		return;
+	}
+	t.on = true;
+	addRecalc(t.c1,rcl);
+}
+
+void offTrans(trn& t, std::set<int>& rcl) {
+	if (!t.on) {
+		return;
+	}
+	t.on = false;
+	addRecalc(t.c1,rcl);
+	addRecalc(t.c2,rcl);
+}
+
+void recalcNode(int n, std::set<int>& rcl) {
+	if (n==VCC || n==VSS) {
+		return;
+	}
+	std::set<int> g;
+	addToGroup(n,g);
+	const bool gval = getGroupValue(g);
+	for (std::set<int>::iterator ig = g.begin(); ig != g.end(); ++ig) {
+		seg& seg = segs[*ig];
+		if (seg.state != gval) {
+			seg.state = gval;
+			for (std::vector<int>::iterator igate = seg.gates.begin(); igate != seg.gates.end(); ++igate) {
+				trn& t = trns[*igate];
+				if (seg.state) {
+					onTrans(t,rcl);
+				} else {
+					offTrans(t,rcl);
+				}
+			}
+		}
+	}
+	
+}
+
+void recalc(const std::set<int>& s) {
+	std::set<int> list(s);
+	for (int sane = 0; sane < 1000; ++sane) {
+		if (!list.size()) {
+			return;
+		}
+		std::cout << "recalc node count: " << list.size() << std::endl;
+		std::set<int> rcl;
+		for (std::set<int>::iterator ilist = list.begin(); ilist != list.end(); ++ilist) {
+			recalcNode(*ilist,rcl);
+		}
+		list = rcl;
+		if (sane >= 999) {
+			std::cout << "WARNING: hit iteration limit during CPU state recalculation" << std::endl;
+		}
+	}
 }
 
 void recalcAll() {
@@ -155,31 +235,31 @@ void mWrite(unsigned short addr, unsigned char data) {
 
 void putDataToChip(unsigned char data) {
 	unsigned char x = data;
-	std::vector<int> s;
+	std::set<int> s;
 
 	setSeg(DB0,x&1);
-	s.push_back(DB0);
+	s.insert(DB0);
 	x >>= 1;
 	setSeg(DB1,x&1);
-	s.push_back(DB1);
+	s.insert(DB1);
 	x >>= 1;
 	setSeg(DB2,x&1);
-	s.push_back(DB2);
+	s.insert(DB2);
 	x >>= 1;
 	setSeg(DB3,x&1);
-	s.push_back(DB3);
+	s.insert(DB3);
 	x >>= 1;
 	setSeg(DB4,x&1);
-	s.push_back(DB4);
+	s.insert(DB4);
 	x >>= 1;
 	setSeg(DB5,x&1);
-	s.push_back(DB5);
+	s.insert(DB5);
 	x >>= 1;
 	setSeg(DB6,x&1);
-	s.push_back(DB6);
+	s.insert(DB6);
 	x >>= 1;
 	setSeg(DB7,x&1);
-	s.push_back(DB7);
+	s.insert(DB7);
 
 	recalc(s);
 }
@@ -203,18 +283,28 @@ void step() {
 }
 
 void init() {
+	std::cout << "initializing CPU..." << std::endl;
 	segs[VCC].state = true;
+	std::cout << "  'RESET" << std::endl;
 	setLow(RES);
+	std::cout << "  'CLK0" << std::endl;
 	setLow(CLK0);
+	std::cout << "   RDY" << std::endl;
 	setHigh(RDY);
+	std::cout << "  'SO" << std::endl;
 	setLow(SO);
+	std::cout << "   IRQ" << std::endl;
 	setHigh(IRQ);
+	std::cout << "   NMI" << std::endl;
 	setHigh(NMI);
 	recalcAll();
 	for (int i(0); i < 8; ++i) {
+		std::cout << "   CLK0" << std::endl;
 		setHigh(CLK0);
+		std::cout << "  'CLK0" << std::endl;
 		setLow(CLK0);
 	}
+	std::cout << "   RESET" << std::endl;
 	setHigh(RES);
 }
 
@@ -306,7 +396,8 @@ int main(int argc, char *argv[])
 
 */
 
-/*dump regs
+/*dump regs*/
+std::cout << "regs: " << std::endl;
 	pHex(rA());
 	pHex(rX());
 	pHex(rY());
@@ -315,7 +406,7 @@ int main(int argc, char *argv[])
 	pHex(rData());
 	pHexw(rAddr());
 	std::cout << std::endl;
-*/
+/**/
 
 	return 0;
 }
