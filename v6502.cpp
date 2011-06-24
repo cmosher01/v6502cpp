@@ -351,7 +351,8 @@ void step() {
 
 void init() {
 	std::cout << "initializing CPU..." << std::endl;
-	segs[VCC].state = true;
+	std::cout << "   VCC" << std::endl;
+	setHigh(VCC);
 	std::cout << "  'RESET" << std::endl;
 	setLow(RES);
 	std::cout << "  'CLK0" << std::endl;
