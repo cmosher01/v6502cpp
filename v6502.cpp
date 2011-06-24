@@ -230,7 +230,7 @@ void recalc(const std::set<int>& s) {
 		if (!list.size()) {
 			return;
 		}
-		std::cout << "recalc node count: " << list.size() << std::endl;
+//		std::cout << "recalc node count: " << list.size() << std::endl;
 		std::set<int> rcl;
 		for (std::set<int>::iterator ilist = list.begin(); ilist != list.end(); ++ilist) {
 			recalcNode(*ilist,rcl);
@@ -253,28 +253,38 @@ void recalcAll() {
 }
 
 unsigned char mRead(unsigned short addr) {
-	std::cout << "read mem: ";
-	pHexw(addr);
-	std::cout << std::endl;
+	//std::cout << "read mem: ";
+	//pHexw(addr);
+	//std::cout << std::endl;
 	/* TODO get byte from addr in memory */
 	unsigned char x;
 	x = 0;
 	switch (addr) {
-		case 0: x = 0xA9; break;
-		case 1: x = 0x5A; break;
+		case 0: x = 0xA9; break; // LDA #$5A
+		case 1: x = 0x5A; break; //
+		case 2: x = 0x85; break; // STA $88
+		case 3: x = 0x88; break; //
+		case 4: x = 0xD0; break; // BNE 0
+		case 5: x = 0xFA; break; //
 	}
 	return x;
 }
 
 void mWrite(unsigned short addr, unsigned char data) {
 	/* TODO write data to addr in memory */
+	//std::cout << "write mem: ";
+	//pHexw(addr);
+	//std::cout << "=";
+	//pHex(data);
+	//std::cout << std::endl;
 }
 
 void putDataToChip(unsigned char data) {
+/*
 	std::cout << "d2cpu: ";
 	pHex(data);
 	std::cout << std::endl;
-
+*/
 	unsigned char x = data;
 	std::set<int> s;
 
@@ -324,36 +334,36 @@ void step() {
 }
 
 void init() {
-	std::cout << "initializing CPU..." << std::endl;
+	//std::cout << "initializing CPU..." << std::endl;
 	segs[VCC].state = true;
-	std::cout << "  'RESET" << std::endl;
+	//std::cout << "  'RESET" << std::endl;
 	setLow(RES);
-	std::cout << "  'CLK0" << std::endl;
+	//std::cout << "  'CLK0" << std::endl;
 	setLow(CLK0);
-	std::cout << "   RDY" << std::endl;
+	//std::cout << "   RDY" << std::endl;
 	setHigh(RDY);
-	std::cout << "  'SO" << std::endl;
+	//std::cout << "  'SO" << std::endl;
 	setLow(SO);
-	std::cout << "   IRQ" << std::endl;
+	//std::cout << "   IRQ" << std::endl;
 	setHigh(IRQ);
-	std::cout << "   NMI" << std::endl;
+	//std::cout << "   NMI" << std::endl;
 	setHigh(NMI);
 
-	std::cout << "recalc all" << std::endl;
+	//std::cout << "recalc all" << std::endl;
 	recalcAll();
-	dumpRegs();
+	//dumpRegs();
 
-	std::cout << "   [8 cycles]" << std::endl;
+	//std::cout << "   [8 cycles]" << std::endl;
 	for (int i(0); i < 8; ++i) {
-		std::cout << "   CLK0" << std::endl;
+		//std::cout << "   CLK0" << std::endl;
 		setHigh(CLK0);
-		dumpRegs();
-		std::cout << "  'CLK0" << std::endl;
+		//dumpRegs();
+		//std::cout << "  'CLK0" << std::endl;
 		setLow(CLK0);
-		dumpRegs();
+		//dumpRegs();
 	}
 
-	std::cout << "   RESET" << std::endl;
+	//std::cout << "   RESET" << std::endl;
 	setHigh(RES);
 }
 
@@ -423,10 +433,10 @@ int main(int argc, char *argv[])
 
 	init();
 
-	std::cout << "running some..." << std::endl;
-	for (int i(0); i < 5; ++i) {
+	std::cerr << "running some..." << std::endl;
+	for (int i(0); i < 500; ++i) {
 		step();
-		dumpRegs();
+		//dumpRegs();
 	}
 
 /*dump chip
