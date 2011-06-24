@@ -1,3 +1,4 @@
+#include <utility>
 #include <vector>
 #include <set>
 #include <map>
@@ -27,11 +28,11 @@ public:
 std::map<int,trn> trns;
 
 void pHex(unsigned char x) {
-	std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned long)x;
+	std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned long)x << std::dec;
 }
 
 void pHexw(unsigned short x) {
-	std::cout << std::setw(4) << std::setfill('0') << std::hex << (unsigned long)x;
+	std::cout << std::setw(4) << std::setfill('0') << std::hex << (unsigned long)x << std::dec;
 }
 
 unsigned char readByte(int b7, int b6, int b5, int b4, int b3, int b2, int b1, int b0) {
@@ -94,6 +95,24 @@ unsigned short rAddr() {
 	return readWord(AB15,AB14,AB13,AB12,AB11,AB10,AB9,AB8,AB7,AB6,AB5,AB4,AB3,AB2,AB1,AB0);
 }
 
+void dumpRegs() {
+	std::cout << "A";
+	pHex(rA());
+	std::cout << " X";
+	pHex(rX());
+	std::cout << " Y";
+	pHex(rY());
+	std::cout << " S";
+	pHex(rS());
+	std::cout << " PC";
+	pHexw(rPC());
+	std::cout << " DATA";
+	pHex(rData());
+	std::cout << " ADDR";
+	pHexw(rAddr());
+	std::cout << std::endl;
+}
+
 void setSeg(int iseg, bool up) {
 	seg& s = segs[iseg];
 	s.pullup = up;
@@ -137,7 +156,10 @@ bool getGroupValue(const std::set<int>& s) {
 }
 
 void addToGroup(int n, std::set<int>& s) {
-	s.insert(n);
+	std::pair<std::set<int>::iterator,bool> ret = s.insert(n);
+	if (!ret.second) {
+		return;
+	}
 	if (n==VCC || n==VSS) {
 		return;
 	}
@@ -221,12 +243,27 @@ void recalc(const std::set<int>& s) {
 }
 
 void recalcAll() {
-	/* TODO */
+	std::set<int> s;
+	for (std::map<int,seg>::iterator i = segs.begin(); i != segs.end(); ++i) {
+		if (!(i->first == VCC || i->first == VSS)) {
+		s.insert(i->first);
+		}
+	}
+	recalc(s);
 }
 
 unsigned char mRead(unsigned short addr) {
+	std::cout << "read mem: ";
+	pHexw(addr);
+	std::cout << std::endl;
 	/* TODO get byte from addr in memory */
-	return 0;
+	unsigned char x;
+	x = 0;
+	switch (addr) {
+		case 0: x = 0xA9; break;
+		case 1: x = 0x5A; break;
+	}
+	return x;
 }
 
 void mWrite(unsigned short addr, unsigned char data) {
@@ -234,6 +271,10 @@ void mWrite(unsigned short addr, unsigned char data) {
 }
 
 void putDataToChip(unsigned char data) {
+	std::cout << "d2cpu: ";
+	pHex(data);
+	std::cout << std::endl;
+
 	unsigned char x = data;
 	std::set<int> s;
 
@@ -273,7 +314,7 @@ void writeBus() {
 }
 
 void step() {
-	if (isHigh(RW)) {
+	if (isHigh(CLK0)) {
 		setLow(CLK0);
 		readBus();
 	} else {
@@ -297,13 +338,21 @@ void init() {
 	setHigh(IRQ);
 	std::cout << "   NMI" << std::endl;
 	setHigh(NMI);
+
+	std::cout << "recalc all" << std::endl;
 	recalcAll();
+	dumpRegs();
+
+	std::cout << "   [8 cycles]" << std::endl;
 	for (int i(0); i < 8; ++i) {
 		std::cout << "   CLK0" << std::endl;
 		setHigh(CLK0);
+		dumpRegs();
 		std::cout << "  'CLK0" << std::endl;
 		setLow(CLK0);
+		dumpRegs();
 	}
+
 	std::cout << "   RESET" << std::endl;
 	setHigh(RES);
 }
@@ -374,6 +423,12 @@ int main(int argc, char *argv[])
 
 	init();
 
+	std::cout << "running some..." << std::endl;
+	for (int i(0); i < 5; ++i) {
+		step();
+		dumpRegs();
+	}
+
 /*dump chip
 	for (std::map<int,seg>::iterator i = segs.begin(); i != segs.end(); ++i) {
 		const int n = i->first;
@@ -395,18 +450,6 @@ int main(int argc, char *argv[])
 	}
 
 */
-
-/*dump regs*/
-std::cout << "regs: " << std::endl;
-	pHex(rA());
-	pHex(rX());
-	pHex(rY());
-	pHex(rS());
-	pHexw(rPC());
-	pHex(rData());
-	pHexw(rAddr());
-	std::cout << std::endl;
-/**/
 
 	return 0;
 }
