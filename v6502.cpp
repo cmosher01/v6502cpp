@@ -1,0 +1,321 @@
+#include <vector>
+#include <set>
+#include <map>
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+
+#include "nodes.h"
+
+class seg {
+public:
+	bool pullup;
+	bool pulldown;
+	bool state;
+	std::vector<int> gates;
+	std::vector<int> c1c2s;
+};
+std::map<int,seg> segs;
+
+class trn {
+public:
+	int gate;
+	int c1;
+	int c2;
+	bool on;
+};
+std::map<int,trn> trns;
+
+void pHex(unsigned char x) {
+	std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned long)x;
+}
+
+void pHexw(unsigned short x) {
+	std::cout << std::setw(4) << std::setfill('0') << std::hex << (unsigned long)x;
+}
+
+unsigned char readByte(int b7, int b6, int b5, int b4, int b3, int b2, int b1, int b0) {
+	return
+	segs[b7].state<<7 |
+	segs[b6].state<<6 |
+	segs[b5].state<<5 |
+	segs[b4].state<<4 |
+	segs[b3].state<<3 |
+	segs[b2].state<<2 |
+	segs[b1].state<<1 |
+	segs[b0].state;
+}
+
+unsigned short readWord(int b15, int b14, int b13, int b12, int b11, int b10, int b9, int b8, int b7, int b6, int b5, int b4, int b3, int b2, int b1, int b0) {
+	return
+	segs[b15].state<<15 |
+	segs[b14].state<<14 |
+	segs[b13].state<<13 |
+	segs[b12].state<<12 |
+	segs[b11].state<<11 |
+	segs[b10].state<<10 |
+	segs[b9].state<<9 |
+	segs[b8].state<<8 |
+	segs[b7].state<<7 |
+	segs[b6].state<<6 |
+	segs[b5].state<<5 |
+	segs[b4].state<<4 |
+	segs[b3].state<<3 |
+	segs[b2].state<<2 |
+	segs[b1].state<<1 |
+	segs[b0].state;
+}
+
+unsigned char rA() {
+	return readByte(A7,A6,A5,A4,A3,A2,A1,A0);
+}
+
+unsigned char rX() {
+	return readByte(X7,X6,X5,X4,X3,X2,X1,X0);
+}
+
+unsigned char rY() {
+	return readByte(Y7,Y6,Y5,Y4,Y3,Y2,Y1,Y0);
+}
+
+unsigned char rS() {
+	return readByte(S7,S6,S5,S4,S3,S2,S1,S0);
+}
+
+unsigned char rPC() {
+	return readWord(PCH7,PCH6,PCH5,PCH4,PCH3,PCH2,PCH1,PCH0,PCL7,PCL6,PCL5,PCL4,PCL3,PCL2,PCL1,PCL0);
+}
+
+unsigned char rData() {
+	return readByte(DB7,DB6,DB5,DB4,DB3,DB2,DB1,DB0);
+}
+
+unsigned short rAddr() {
+	return readWord(AB15,AB14,AB13,AB12,AB11,AB10,AB9,AB8,AB7,AB6,AB5,AB4,AB3,AB2,AB1,AB0);
+}
+
+void setSeg(int iseg, bool up) {
+	seg& s = segs[iseg];
+	s.pullup = up;
+	s.pulldown = !up;
+}
+
+void recalc(const std::vector<int>& s);
+
+void setSegRC(int iseg, bool up) {
+	setSeg(iseg,up);
+	std::vector<int> s;
+	s.push_back(iseg);
+	recalc(s);
+}
+
+void setHigh(int iseg) {
+	setSegRC(iseg,true);
+}
+void setLow(int iseg) {
+	setSegRC(iseg,false);
+}
+
+bool isHigh(int iseg) {
+	return segs[iseg].state;
+}
+
+bool getGroupValue(const std::set<int>& s) {
+	if (s.find(VSS) != s.end()) {
+		return false; /* ground always pulls down */
+	}
+	if (s.find(VCC) != s.end()) {
+		return true; /* power always pulls up */
+	}
+	for (std::set<int>::const_iterator i = s.begin(); i != s.end(); ++i) {
+		const seg& s = segs[*i];
+		if (s.pullup) { return true; }
+		if (s.pulldown) { return false; }
+		if (s.state) { return true; }
+	}
+	return false;
+}
+
+void recalc(const std::vector<int>& s) {
+	/* TODO */
+}
+
+void recalcAll() {
+	/* TODO */
+}
+
+unsigned char mRead(unsigned short addr) {
+	/* TODO get byte from addr in memory */
+	return 0;
+}
+
+void mWrite(unsigned short addr, unsigned char data) {
+	/* TODO write data to addr in memory */
+}
+
+void putDataToChip(unsigned char data) {
+	unsigned char x = data;
+	std::vector<int> s;
+
+	setSeg(DB0,x&1);
+	s.push_back(DB0);
+	x >>= 1;
+	setSeg(DB1,x&1);
+	s.push_back(DB1);
+	x >>= 1;
+	setSeg(DB2,x&1);
+	s.push_back(DB2);
+	x >>= 1;
+	setSeg(DB3,x&1);
+	s.push_back(DB3);
+	x >>= 1;
+	setSeg(DB4,x&1);
+	s.push_back(DB4);
+	x >>= 1;
+	setSeg(DB5,x&1);
+	s.push_back(DB5);
+	x >>= 1;
+	setSeg(DB6,x&1);
+	s.push_back(DB6);
+	x >>= 1;
+	setSeg(DB7,x&1);
+	s.push_back(DB7);
+
+	recalc(s);
+}
+
+void readBus() {
+	putDataToChip(mRead(rAddr()));
+}
+
+void writeBus() {
+	mWrite(rAddr(),rData());
+}
+
+void step() {
+	if (isHigh(RW)) {
+		setLow(CLK0);
+		readBus();
+	} else {
+		setHigh(CLK0);
+		writeBus();
+	}
+}
+
+void init() {
+	segs[VCC].state = true;
+	setLow(RES);
+	setLow(CLK0);
+	setHigh(RDY);
+	setLow(SO);
+	setHigh(IRQ);
+	setHigh(NMI);
+	recalcAll();
+	for (int i(0); i < 8; ++i) {
+		setHigh(CLK0);
+		setLow(CLK0);
+	}
+	setHigh(RES);
+}
+
+int main(int argc, char *argv[])
+{
+	std::cout << "reading segs";
+	std::ifstream if_segs("segs");
+	if (!if_segs.is_open()) {
+		std::cerr << "error opening file: segs" << std::endl;
+		return 1;
+	}
+
+	while (if_segs.good()) {
+		int i_seg(-1);
+		bool b_on(false);
+		if_segs >> i_seg >> b_on;
+		if (i_seg >= 0) {
+			std::cout << ".";
+			seg s;
+			s.pullup = b_on;
+			s.pulldown = false; /* ??? !b_on */
+			s.state = false;
+			segs[i_seg] = s;
+		}
+	}
+	std::cout << std::endl << "read " << segs.size() << " segs" << std::endl;
+
+
+
+	std::cout << "reading trns";
+	std::ifstream if_trns("trns");
+	if (!if_trns.is_open()) {
+		std::cerr << "error opening file: trns" << std::endl;
+		return 1;
+	}
+
+	while (if_trns.good()) {
+		std::cout << ".";
+		int i_trn(-1);
+		int i_gate, i_c1, i_c2;
+		if_trns >> i_trn >> i_gate >> i_c1 >> i_c2;
+		if (i_trn >= 0) {
+			trn t;
+			t.gate = i_gate;
+			t.c1 = i_c1;
+			t.c2 = i_c2;
+			t.on = false;
+			trns[i_trn] = t;
+		}
+	}
+	std::cout << std::endl << "read " << trns.size() << " trns" << std::endl;
+
+	for (std::map<int,trn>::iterator i = trns.begin(); i != trns.end(); ++i) {
+		const int n = (*i).first;
+		trn& t = (*i).second;
+		if (t.c1==VSS) {
+			t.c1 = t.c2;
+			t.c2 = VSS;
+		} else if (t.c1==VCC) {
+			t.c1 = t.c2;
+			t.c2 = VCC;
+		}
+		segs[t.gate].gates.push_back(n);
+		segs[t.c1].c1c2s.push_back(n);
+		segs[t.c2].c1c2s.push_back(n);
+	}
+
+	init();
+
+/*dump chip
+	for (std::map<int,seg>::iterator i = segs.begin(); i != segs.end(); ++i) {
+		const int n = i->first;
+		const seg& s = i->second;
+		std::cout << "s" << n << ": " << s.pullup << "  g[";
+		for (std::vector<int>::const_iterator ig = s.gates.begin(); ig != s.gates.end(); ++ig) {
+			std::cout << *ig << " ";
+		}
+		std::cout << "]  c[";
+		for (std::vector<int>::const_iterator ig = s.c1c2s.begin(); ig != s.c1c2s.end(); ++ig) {
+			std::cout << *ig << " ";
+		}
+		std::cout << "]" << std::endl;
+	}
+	for (std::map<int,trn>::iterator i = trns.begin(); i != trns.end(); ++i) {
+		const int n = (*i).first;
+		trn& t = (*i).second;
+		std::cout << "t" << n << ": " << t.gate << "->" << t.c1 << "," << t.c2 << std::endl;
+	}
+
+*/
+
+/*dump regs
+	pHex(rA());
+	pHex(rX());
+	pHex(rY());
+	pHex(rS());
+	pHexw(rPC());
+	pHex(rData());
+	pHexw(rAddr());
+	std::cout << std::endl;
+*/
+
+	return 0;
+}
