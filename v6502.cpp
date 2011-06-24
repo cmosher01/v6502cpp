@@ -16,7 +16,7 @@ public:
 	std::vector<int> gates;
 	std::vector<int> c1c2s;
 };
-std::map<int,seg> segs;
+std::vector<seg> segs;
 
 class trn {
 public:
@@ -25,15 +25,7 @@ public:
 	int c2;
 	bool on;
 };
-std::map<int,trn> trns;
-
-void pHex(unsigned char x) {
-	std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned long)x << std::dec;
-}
-
-void pHexw(unsigned short x) {
-	std::cout << std::setw(4) << std::setfill('0') << std::hex << (unsigned long)x << std::dec;
-}
+std::vector<trn> trns;
 
 unsigned char readByte(int b7, int b6, int b5, int b4, int b3, int b2, int b1, int b0) {
 	return
@@ -67,6 +59,15 @@ unsigned short readWord(int b15, int b14, int b13, int b12, int b11, int b10, in
 	segs[b0].state;
 }
 
+unsigned char rData() {
+	return readByte(DB7,DB6,DB5,DB4,DB3,DB2,DB1,DB0);
+}
+
+unsigned short rAddr() {
+	return readWord(AB15,AB14,AB13,AB12,AB11,AB10,AB9,AB8,AB7,AB6,AB5,AB4,AB3,AB2,AB1,AB0);
+}
+
+/*
 unsigned char rA() {
 	return readByte(A7,A6,A5,A4,A3,A2,A1,A0);
 }
@@ -87,12 +88,12 @@ unsigned char rPC() {
 	return readWord(PCH7,PCH6,PCH5,PCH4,PCH3,PCH2,PCH1,PCH0,PCL7,PCL6,PCL5,PCL4,PCL3,PCL2,PCL1,PCL0);
 }
 
-unsigned char rData() {
-	return readByte(DB7,DB6,DB5,DB4,DB3,DB2,DB1,DB0);
+void pHex(unsigned char x) {
+	std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned long)x << std::dec;
 }
 
-unsigned short rAddr() {
-	return readWord(AB15,AB14,AB13,AB12,AB11,AB10,AB9,AB8,AB7,AB6,AB5,AB4,AB3,AB2,AB1,AB0);
+void pHexw(unsigned short x) {
+	std::cout << std::setw(4) << std::setfill('0') << std::hex << (unsigned long)x << std::dec;
 }
 
 void dumpRegs() {
@@ -112,69 +113,7 @@ void dumpRegs() {
 	pHexw(rAddr());
 	std::cout << std::endl;
 }
-
-void setSeg(int iseg, bool up) {
-	seg& s = segs[iseg];
-	s.pullup = up;
-	s.pulldown = !up;
-}
-
-void recalc(const std::set<int>& s);
-
-void setSegRC(int iseg, bool up) {
-	setSeg(iseg,up);
-	std::set<int> s;
-	s.insert(iseg);
-	recalc(s);
-}
-
-void setHigh(int iseg) {
-	setSegRC(iseg,true);
-}
-void setLow(int iseg) {
-	setSegRC(iseg,false);
-}
-
-bool isHigh(int iseg) {
-	return segs[iseg].state;
-}
-
-bool getGroupValue(const std::set<int>& s) {
-	if (s.find(VSS) != s.end()) {
-		return false; /* ground always pulls down */
-	}
-	if (s.find(VCC) != s.end()) {
-		return true; /* power always pulls up */
-	}
-	for (std::set<int>::const_iterator i = s.begin(); i != s.end(); ++i) {
-		const seg& s = segs[*i];
-		if (s.pullup) { return true; }
-		if (s.pulldown) { return false; }
-		if (s.state) { return true; }
-	}
-	return false;
-}
-
-void addToGroup(int n, std::set<int>& s) {
-	std::pair<std::set<int>::iterator,bool> ret = s.insert(n);
-	if (!ret.second) {
-		return;
-	}
-	if (n==VCC || n==VSS) {
-		return;
-	}
-	seg& sg = segs[n];
-	for (std::vector<int>::const_iterator itrn = sg.c1c2s.begin(); itrn != sg.c1c2s.end(); ++itrn) {
-		const trn& t = trns[*itrn];
-		if (t.on) {
-			if (t.c1==n) {
-				addToGroup(t.c2,s);
-			} else if (t.c2==n) {
-				addToGroup(t.c1,s);
-			}
-		}
-	}
-}
+*/
 
 void addRecalc(int n, std::set<int>& rcl) {
 	if (n==VCC || n==VSS) {
@@ -200,28 +139,63 @@ void offTrans(trn& t, std::set<int>& rcl) {
 	addRecalc(t.c2,rcl);
 }
 
-void recalcNode(int n, std::set<int>& rcl) {
+bool getGroupValue(const std::set<int>& s) {
+	if (s.find(VSS) != s.end()) {
+		return false; /* ground always pulls down */
+	}
+	if (s.find(VCC) != s.end()) {
+		return true; /* power always pulls up */
+	}
+	for (std::set<int>::const_iterator i = s.begin(); i != s.end(); ++i) {
+		const seg& s = segs[*i];
+		if (s.pullup) { return true; }
+		if (s.pulldown) { return false; }
+		if (s.state) { return true; }
+	}
+	return false;
+}
+
+void addToGroup(int n, std::set<int>& s) {
+	const std::pair<std::set<int>::iterator,bool> ret = s.insert(n);
+	if (!ret.second) {
+		return;
+	}
 	if (n==VCC || n==VSS) {
 		return;
 	}
-	std::set<int> g;
-	addToGroup(n,g);
-	const bool gval = getGroupValue(g);
-	for (std::set<int>::iterator ig = g.begin(); ig != g.end(); ++ig) {
-		seg& seg = segs[*ig];
-		if (seg.state != gval) {
-			seg.state = gval;
-			for (std::vector<int>::iterator igate = seg.gates.begin(); igate != seg.gates.end(); ++igate) {
-				trn& t = trns[*igate];
-				if (seg.state) {
-					onTrans(t,rcl);
-				} else {
-					offTrans(t,rcl);
+	const seg& sg = segs[n];
+	for (std::vector<int>::const_iterator itrn = sg.c1c2s.begin(); itrn != sg.c1c2s.end(); ++itrn) {
+		const trn& t = trns[*itrn];
+		if (t.on) {
+			if (t.c1==n) {
+				addToGroup(t.c2,s);
+			} else if (t.c2==n) {
+				addToGroup(t.c1,s);
+			}
+		}
+	}
+}
+
+void recalcNode(int n, std::set<int>& rcl) {
+	if (!(n==VCC || n==VSS)) {
+		std::set<int> g;
+		addToGroup(n,g);
+		const bool gval = getGroupValue(g);
+		for (std::set<int>::iterator ig = g.begin(); ig != g.end(); ++ig) {
+			seg& seg = segs[*ig];
+			if (seg.state != gval) {
+				seg.state = gval;
+				for (std::vector<int>::iterator igate = seg.gates.begin(); igate != seg.gates.end(); ++igate) {
+					trn& t = trns[*igate];
+					if (seg.state) {
+						onTrans(t,rcl);
+					} else {
+						offTrans(t,rcl);
+					}
 				}
 			}
 		}
 	}
-	
 }
 
 void recalc(const std::set<int>& s) {
@@ -237,19 +211,44 @@ void recalc(const std::set<int>& s) {
 		}
 		list = rcl;
 		if (sane >= 999) {
-			std::cout << "WARNING: hit iteration limit during CPU state recalculation" << std::endl;
+			std::cerr << "WARNING: hit iteration limit during CPU state recalculation" << std::endl;
 		}
 	}
 }
 
 void recalcAll() {
 	std::set<int> s;
-	for (std::map<int,seg>::iterator i = segs.begin(); i != segs.end(); ++i) {
-		if (!(i->first == VCC || i->first == VSS)) {
-		s.insert(i->first);
+	for (int i = 0; i < segs.size(); ++i) {
+		if (!(i == VCC || i == VSS)) {
+			s.insert(i);
 		}
 	}
 	recalc(s);
+}
+
+void setSeg(int iseg, bool up) {
+	seg& s = segs[iseg];
+	s.pullup = up;
+	s.pulldown = !up;
+}
+
+void setSegRC(int iseg, bool up) {
+	setSeg(iseg,up);
+	std::set<int> s;
+	s.insert(iseg);
+	recalc(s);
+}
+
+void setHigh(int iseg) {
+	setSegRC(iseg,true);
+}
+
+void setLow(int iseg) {
+	setSegRC(iseg,false);
+}
+
+bool isHigh(int iseg) {
+	return segs[iseg].state;
 }
 
 unsigned char mRead(unsigned short addr) {
@@ -369,24 +368,29 @@ void init() {
 
 int main(int argc, char *argv[])
 {
-	std::cout << "reading segs";
-	std::ifstream if_segs("segs");
+	std::cout << "reading segsonly";
+	std::ifstream if_segs("segsonly");
 	if (!if_segs.is_open()) {
 		std::cerr << "error opening file: segs" << std::endl;
 		return 1;
 	}
 
+	int i_seg(0);
 	while (if_segs.good()) {
-		int i_seg(-1);
+		int i_segin(-1);
 		bool b_on(false);
-		if_segs >> i_seg >> b_on;
-		if (i_seg >= 0) {
+		if_segs >> i_segin >> b_on;
+		if (i_segin >= 0) {
+			if (i_segin != i_seg++) {
+				std::cerr << "error: mismatch in segsonly file near " << i_segin << std::endl;
+				return 1;
+			}
 			std::cout << ".";
 			seg s;
 			s.pullup = b_on;
 			s.pulldown = false; /* ??? !b_on */
 			s.state = false;
-			segs[i_seg] = s;
+			segs.push_back(s);
 		}
 	}
 	std::cout << std::endl << "read " << segs.size() << " segs" << std::endl;
@@ -400,25 +404,29 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	int i_trn(0);
 	while (if_trns.good()) {
 		std::cout << ".";
-		int i_trn(-1);
+		int i_trnin(-1);
 		int i_gate, i_c1, i_c2;
-		if_trns >> i_trn >> i_gate >> i_c1 >> i_c2;
-		if (i_trn >= 0) {
+		if_trns >> i_trnin >> i_gate >> i_c1 >> i_c2;
+		if (i_trnin >= 0) {
+			if (i_trnin != i_trn++) {
+				std::cerr << "error: mismatch in trns file near " << i_trnin << std::endl;
+				return 1;
+			}
 			trn t;
 			t.gate = i_gate;
 			t.c1 = i_c1;
 			t.c2 = i_c2;
 			t.on = false;
-			trns[i_trn] = t;
+			trns.push_back(t);
 		}
 	}
 	std::cout << std::endl << "read " << trns.size() << " trns" << std::endl;
 
-	for (std::map<int,trn>::iterator i = trns.begin(); i != trns.end(); ++i) {
-		const int n = (*i).first;
-		trn& t = (*i).second;
+	for (int i = 0; i != trns.size(); ++i) {
+		trn& t = trns[i];
 		if (t.c1==VSS) {
 			t.c1 = t.c2;
 			t.c2 = VSS;
@@ -426,15 +434,15 @@ int main(int argc, char *argv[])
 			t.c1 = t.c2;
 			t.c2 = VCC;
 		}
-		segs[t.gate].gates.push_back(n);
-		segs[t.c1].c1c2s.push_back(n);
-		segs[t.c2].c1c2s.push_back(n);
+		segs[t.gate].gates.push_back(i);
+		segs[t.c1].c1c2s.push_back(i);
+		segs[t.c2].c1c2s.push_back(i);
 	}
 
 	init();
 
 	std::cerr << "running some..." << std::endl;
-	for (int i(0); i < 500; ++i) {
+	for (int i(0); i < 5000; ++i) {
 		step();
 		//dumpRegs();
 	}
