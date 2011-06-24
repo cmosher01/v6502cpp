@@ -8,6 +8,8 @@
 
 #include "nodes.h"
 
+#define TRACE 1
+
 class seg {
 public:
 	bool pullup;
@@ -59,6 +61,10 @@ unsigned short readWord(int b15, int b14, int b13, int b12, int b11, int b10, in
 	segs[b0].state;
 }
 
+bool isHigh(int iseg) {
+	return segs[iseg].state;
+}
+
 unsigned char rData() {
 	return readByte(DB7,DB6,DB5,DB4,DB3,DB2,DB1,DB0);
 }
@@ -67,7 +73,6 @@ unsigned short rAddr() {
 	return readWord(AB15,AB14,AB13,AB12,AB11,AB10,AB9,AB8,AB7,AB6,AB5,AB4,AB3,AB2,AB1,AB0);
 }
 
-/*
 unsigned char rA() {
 	return readByte(A7,A6,A5,A4,A3,A2,A1,A0);
 }
@@ -107,13 +112,16 @@ void dumpRegs() {
 	pHex(rS());
 	std::cout << " PC";
 	pHexw(rPC());
-	std::cout << " DATA";
+	std::cout << "  ";
+	std::cout << (isHigh(CLK0) ? "+" : "-");
+	std::cout << (isHigh(RW)   ? "R" : "W");
+	std::cout << " DB";
 	pHex(rData());
-	std::cout << " ADDR";
+	std::cout << " AB";
 	pHexw(rAddr());
 	std::cout << std::endl;
 }
-*/
+
 
 void addRecalc(int n, std::set<int>& rcl) {
 	if (n==VCC || n==VSS) {
@@ -202,18 +210,18 @@ void recalc(const std::set<int>& s) {
 	std::set<int> list(s);
 	for (int sane = 0; sane < 1000; ++sane) {
 		if (!list.size()) {
+#ifdef TRACE
+			dumpRegs();
+#endif
 			return;
 		}
-//		std::cout << "recalc node count: " << list.size() << std::endl;
 		std::set<int> rcl;
-		for (std::set<int>::iterator ilist = list.begin(); ilist != list.end(); ++ilist) {
+		for (std::set<int>::const_iterator ilist = list.begin(); ilist != list.end(); ++ilist) {
 			recalcNode(*ilist,rcl);
 		}
 		list = rcl;
-		if (sane >= 999) {
-			std::cerr << "WARNING: hit iteration limit during CPU state recalculation" << std::endl;
-		}
 	}
+	std::cerr << "ERROR: reached maximum iteration limit while recalculating CPU state" << std::endl;
 }
 
 void recalcAll() {
@@ -226,35 +234,24 @@ void recalcAll() {
 	recalc(s);
 }
 
+
+
+
 void setSeg(int iseg, bool up) {
 	seg& s = segs[iseg];
 	s.pullup = up;
 	s.pulldown = !up;
 }
 
-void setSegRC(int iseg, bool up) {
-	setSeg(iseg,up);
-	std::set<int> s;
-	s.insert(iseg);
-	recalc(s);
-}
-
 void setHigh(int iseg) {
-	setSegRC(iseg,true);
+	setSeg(iseg,true);
 }
 
 void setLow(int iseg) {
-	setSegRC(iseg,false);
-}
-
-bool isHigh(int iseg) {
-	return segs[iseg].state;
+	setSeg(iseg,false);
 }
 
 unsigned char mRead(unsigned short addr) {
-	//std::cout << "read mem: ";
-	//pHexw(addr);
-	//std::cout << std::endl;
 	/* TODO get byte from addr in memory */
 	unsigned char x;
 	x = 0;
@@ -266,16 +263,21 @@ unsigned char mRead(unsigned short addr) {
 		case 4: x = 0xD0; break; // BNE 0
 		case 5: x = 0xFA; break; //
 	}
+
+	pHex(x);
+	std::cout << "<";
+	pHexw(addr);
+	std::cout << std::endl;
+
 	return x;
 }
 
 void mWrite(unsigned short addr, unsigned char data) {
 	/* TODO write data to addr in memory */
-	//std::cout << "write mem: ";
-	//pHexw(addr);
-	//std::cout << "=";
-	//pHex(data);
-	//std::cout << std::endl;
+	pHex(data);
+	std::cout << ">";
+	pHexw(addr);
+	std::cout << std::endl;
 }
 
 void putDataToChip(unsigned char data) {
@@ -285,86 +287,102 @@ void putDataToChip(unsigned char data) {
 	std::cout << std::endl;
 */
 	unsigned char x = data;
-	std::set<int> s;
 
 	setSeg(DB0,x&1);
-	s.insert(DB0);
 	x >>= 1;
 	setSeg(DB1,x&1);
-	s.insert(DB1);
 	x >>= 1;
 	setSeg(DB2,x&1);
-	s.insert(DB2);
 	x >>= 1;
 	setSeg(DB3,x&1);
-	s.insert(DB3);
 	x >>= 1;
 	setSeg(DB4,x&1);
-	s.insert(DB4);
 	x >>= 1;
 	setSeg(DB5,x&1);
-	s.insert(DB5);
 	x >>= 1;
 	setSeg(DB6,x&1);
-	s.insert(DB6);
 	x >>= 1;
 	setSeg(DB7,x&1);
-	s.insert(DB7);
-
-	recalc(s);
 }
 
 void readBus() {
-	putDataToChip(mRead(rAddr()));
+	if (isHigh(RW)) {
+		putDataToChip(mRead(rAddr()));
+	}
 }
 
 void writeBus() {
-	mWrite(rAddr(),rData());
+	if (!isHigh(RW)) {
+		mWrite(rAddr(),rData());
+	}
+}
+
+void addDataToRecalc(std::set<int>& s) {
+	s.insert(DB0);
+	s.insert(DB1);
+	s.insert(DB2);
+	s.insert(DB3);
+	s.insert(DB4);
+	s.insert(DB5);
+	s.insert(DB6);
+	s.insert(DB7);
 }
 
 void step() {
+	std::set<int> s;
+
+	s.insert(CLK0);
+
 	if (isHigh(CLK0)) {
 		setLow(CLK0);
 		readBus();
+		addDataToRecalc(s);
 	} else {
 		setHigh(CLK0);
 		writeBus();
 	}
+
+	recalc(s);
 }
+
+
+
+
 
 void init() {
-	//std::cout << "initializing CPU..." << std::endl;
+	std::cout << "initializing CPU..." << std::endl;
 	segs[VCC].state = true;
-	//std::cout << "  'RESET" << std::endl;
+	std::cout << "  'RESET" << std::endl;
 	setLow(RES);
-	//std::cout << "  'CLK0" << std::endl;
+	std::cout << "  'CLK0" << std::endl;
 	setLow(CLK0);
-	//std::cout << "   RDY" << std::endl;
+	std::cout << "   RDY" << std::endl;
 	setHigh(RDY);
-	//std::cout << "  'SO" << std::endl;
+	std::cout << "  'SO" << std::endl;
 	setLow(SO);
-	//std::cout << "   IRQ" << std::endl;
+	std::cout << "   IRQ" << std::endl;
 	setHigh(IRQ);
-	//std::cout << "   NMI" << std::endl;
+	std::cout << "   NMI" << std::endl;
 	setHigh(NMI);
 
-	//std::cout << "recalc all" << std::endl;
+	std::cout << "recalc all" << std::endl;
 	recalcAll();
-	//dumpRegs();
 
-	//std::cout << "   [8 cycles]" << std::endl;
-	for (int i(0); i < 8; ++i) {
-		//std::cout << "   CLK0" << std::endl;
-		setHigh(CLK0);
-		//dumpRegs();
-		//std::cout << "  'CLK0" << std::endl;
-		setLow(CLK0);
-		//dumpRegs();
+	std::cout << "   [10 cycles]" << std::endl;
+	for (int i(0); i < 10; ++i) {
+		step();
 	}
 
-	//std::cout << "   RESET" << std::endl;
+	std::cout << "   RESET" << std::endl;
 	setHigh(RES);
+	std::set<int> s;
+	s.insert(RES);
+	recalc(s);
 }
+
+
+
+
 
 int main(int argc, char *argv[])
 {
@@ -442,9 +460,8 @@ int main(int argc, char *argv[])
 	init();
 
 	std::cerr << "running some..." << std::endl;
-	for (int i(0); i < 5000; ++i) {
+	for (int i(0); i < 80; ++i) {
 		step();
-		//dumpRegs();
 	}
 
 /*dump chip
