@@ -1,5 +1,16 @@
+/* power */
+#define VCC (657)
+#define VSS (558)
+
+/* inputs */
+#define CLK0 (1171)
+#define IRQ (103)
 #define RES (159)
-#define RW (1156)
+#define NMI (1297)
+#define RDY (89)
+#define SO (1672)
+
+/* data bus (I/O) */
 #define DB0 (1005)
 #define DB1 (82)
 #define DB3 (650)
@@ -8,6 +19,8 @@
 #define DB4 (1393)
 #define DB7 (1349)
 #define DB6 (1591)
+
+/* address bus (output) */
 #define AB0 (268)
 #define AB1 (451)
 #define AB2 (1340)
@@ -24,16 +37,14 @@
 #define AB11 (399)
 #define AB14 (672)
 #define AB15 (195)
+
+/* outputs */
+#define RW (1156)
 #define SYNC (539)
-#define SO (1672)
-#define CLK0 (1171)
 #define CLK1OUT (1163)
 #define CLK2OUT (421)
-#define RDY (89)
-#define NMI (1297)
-#define IRQ (103)
-#define VCC (657)
-#define VSS (558)
+
+/* internal registers */
 #define A0 (737)
 #define A1 (1234)
 #define A2 (978)
@@ -42,14 +53,7 @@
 #define A5 (858)
 #define A6 (1136)
 #define A7 (1653)
-#define Y0 (64)
-#define Y1 (1148)
-#define Y2 (573)
-#define Y3 (305)
-#define Y4 (989)
-#define Y5 (615)
-#define Y6 (115)
-#define Y7 (843)
+
 #define X0 (1216)
 #define X1 (98)
 #define X2 (1)
@@ -58,6 +62,16 @@
 #define X5 (589)
 #define X6 (448)
 #define X7 (777)
+
+#define Y0 (64)
+#define Y1 (1148)
+#define Y2 (573)
+#define Y3 (305)
+#define Y4 (989)
+#define Y5 (615)
+#define Y6 (115)
+#define Y7 (843)
+
 #define PCL0 (1139)
 #define PCL1 (1022)
 #define PCL2 (655)
@@ -66,6 +80,7 @@
 #define PCL5 (622)
 #define PCL6 (377)
 #define PCL7 (1611)
+
 #define PCH0 (1670)
 #define PCH1 (292)
 #define PCH2 (502)
@@ -74,6 +89,7 @@
 #define PCH5 (49)
 #define PCH6 (1551)
 #define PCH7 (205)
+
 #define P0 (32)
 #define P1 (627)
 #define P2 (1553)
@@ -81,6 +97,7 @@
 #define P4 (1119)
 #define P6 (77)
 #define P7 (1370)
+
 #define S0 (1403)
 #define S1 (183)
 #define S2 (81)
