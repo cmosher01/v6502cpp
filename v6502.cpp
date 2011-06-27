@@ -10,7 +10,7 @@
 
 #include "nodes.h"
 
-//#define TRACE 1
+#define TRACE 1
 
 class seg {
 public:
@@ -212,6 +212,7 @@ void addToGroup(int n, std::set<int>& s) {
 	if (n==VCC || n==VSS) {
 		return;
 	}
+//std::cout << "a: " << n << std::endl;
 	const seg& sg = segs[n];
 	for (std::vector<int>::const_iterator itrn = sg.c1c2s.begin(); itrn != sg.c1c2s.end(); ++itrn) {
 		const trn& t = trns[*itrn];
@@ -230,9 +231,12 @@ void recalcNode(int n, std::set<int>& rcl) {
 		std::set<int> g;
 		addToGroup(n,g);
 		const bool gval = getGroupValue(g);
+//std::cout << "gval: " << gval << " grp size: " << g.size() << std::endl;
 		for (std::set<int>::iterator ig = g.begin(); ig != g.end(); ++ig) {
+//std::cout << "ig: " << *ig << std::endl;
 			seg& seg = segs[*ig];
 			if (seg.state != gval) {
+//std::cout << "change seg state " << std::endl;
 				seg.state = gval;
 				for (std::vector<int>::iterator igate = seg.gates.begin(); igate != seg.gates.end(); ++igate) {
 					trn& t = trns[*igate];
@@ -249,7 +253,7 @@ void recalcNode(int n, std::set<int>& rcl) {
 
 void recalc(const std::set<int>& s) {
 	std::set<int> list(s);
-	std::set<int> done;
+//	std::set<int> done;
 	for (int sane = 0; sane < 100; ++sane) {
 //std::cout << "rc: " << list.size() << std::endl;
 		if (!list.size()) {
@@ -258,11 +262,12 @@ void recalc(const std::set<int>& s) {
 		std::set<int> rcl;
 		for (std::set<int>::const_iterator ilist = list.begin(); ilist != list.end(); ++ilist) {
 			recalcNode(*ilist,rcl);
+//std::cout << "done recalcNode" << std::endl;
 		}
-		//done.insert(rcl.begin(),rcl.end());
-		//std::set<int> v;
-		//std::set_difference(rcl.begin(),rcl.end(),done.begin(),done.end(),std::inserter(v,v.end()));
-		//list = v;
+//		done.insert(rcl.begin(),rcl.end());
+//		std::set<int> v;
+//		std::set_difference(rcl.begin(),rcl.end(),done.begin(),done.end(),std::inserter(v,v.end()));
+//		list = v;
 //		if (std::equal(list.begin(),list.end(),rcl.begin())) {
 //std::cout << "hit stasis" << std::endl;
 //			return;
@@ -417,14 +422,16 @@ void step() {
 
 void init() {
 	std::cout << "initializing CPU..." << std::endl;
+//dumpRegs();
 //dumpSegs();
 	recalcAll();
 //dumpSegs();
+dumpRegs();
 
 	setHigh(VCC);
 	setLow(VSS);
 
-	setLow(CLK0);
+	setHigh(CLK0);
 	setHigh(IRQ);
 	setLow(RES);
 	setHigh(NMI);
@@ -444,7 +451,7 @@ recalc(s);
 //dumpSegs();
 //	std::cout << "recalc all" << std::endl;
 //	recalcAll();
-
+dumpRegs();
 	std::cout << "   [50 cycles]" << std::endl;
 	for (int i(0); i < 50; ++i) {
 		step();
@@ -534,7 +541,7 @@ int main(int argc, char *argv[])
 	init();
 
 	std::cout << "running some..." << std::endl;
-	for (int i(0); i < 10000; ++i) {
+	for (int i(0); i < 100; ++i) {
 		step();
 	}
 	std::cout << "end" << std::endl;
