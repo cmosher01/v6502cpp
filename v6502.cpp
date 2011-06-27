@@ -123,6 +123,75 @@ void dumpSegs() {
 	}
 }
 
+unsigned char memory[0x10000];
+void init_mem() {
+	for (int i = 0; i < 0x10000; ++i) {
+		memory[i] = 0;
+	}
+
+	memory[0x0200] = 0xEA; // NOP
+	memory[0x0201] = 0xEA; // NOP
+	memory[0x0202] = 0xA9; // LDA #$5A
+	memory[0x0203] = 0x5A; //
+	memory[0x0204] = 0x85; // STA $88
+	memory[0x0205] = 0x88; //
+	memory[0x0206] = 0xA9; // LDA #$23
+	memory[0x0207] = 0x23; //
+	memory[0x0208] = 0xD0; // BNE 0
+	memory[0x0209] = 0xF8; //
+
+	memory[0xFFFC] = 0x02;  // RESET --> $0202
+	memory[0xFFFD] = 0x02;
+
+//	memory[0xFF] = 0x68;  // PLA
+/*
+	memory[0xFF] = 0xFF;
+	memory[0xFFFF] = 0xFE;
+	memory[0xFEFE] = 0xFD;
+	memory[0xFDFD] = 0xFC;
+	memory[0xFCFC] = 0xFB;
+	memory[0xFBFB] = 0xFA;
+	memory[0xFAFA] = 0xF9;
+*/
+}
+void pZP() {
+	int a = 0;
+	for (int i = 0; i < 16; ++i) {
+		pHexw(a);
+		std::cout << ": ";
+		for (int j = 0; j < 16; ++j) {
+			pHex(memory[a++]);
+			std::cout << " ";
+		}
+		std::cout << std::endl;
+	}
+}
+
+unsigned char mRead(unsigned short addr) {
+	unsigned char x;
+	x = memory[addr];
+#ifdef TRACEMEM
+	std::cout << "--------------------------------------------- ";
+	pHex(x);
+	std::cout << "<";
+	pHexw(addr);
+	std::cout << std::endl;
+#endif
+	return x;
+}
+
+void mWrite(unsigned short addr, unsigned char data) {
+	/* TODO write data to addr in memory */
+	memory[addr] = data;
+#ifdef TRACEMEM
+	std::cout << "--------------------------------------------- ";
+	pHex(data);
+	std::cout << ">";
+	pHexw(addr);
+	std::cout << std::endl;
+#endif
+}
+
 void dumpRegs() {
 	std::cout << "A";
 	pHex(rA());
@@ -159,6 +228,7 @@ void dumpRegs() {
 	std::cout << " AB";
 	pHexw(rAddr());
 	std::cout << std::endl;
+//pZP();
 }
 
 
@@ -311,75 +381,6 @@ void setHigh(int iseg) {
 
 void setLow(int iseg) {
 	setSeg(iseg,false);
-}
-
-unsigned char memory[0x10000];
-void init_mem() {
-	for (int i = 0; i < 0x10000; ++i) {
-		memory[i] = 0;
-	}
-
-	memory[0x0200] = 0xEA; // NOP
-	memory[0x0201] = 0xEA; // NOP
-	memory[0x0202] = 0xA9; // LDA #$5A
-	memory[0x0203] = 0x5A; //
-	memory[0x0204] = 0x85; // STA $88
-	memory[0x0205] = 0x88; //
-	memory[0x0206] = 0xA9; // LDA #$23
-	memory[0x0207] = 0x23; //
-	memory[0x0208] = 0xD0; // BNE 0
-	memory[0x0209] = 0xF8; //
-
-	memory[0xFFFC] = 0x02;  // RESET --> $0202
-	memory[0xFFFD] = 0x02;
-
-//	memory[0xFF] = 0x68;  // PLA
-/*
-	memory[0xFF] = 0xFF;
-	memory[0xFFFF] = 0xFE;
-	memory[0xFEFE] = 0xFD;
-	memory[0xFDFD] = 0xFC;
-	memory[0xFCFC] = 0xFB;
-	memory[0xFBFB] = 0xFA;
-	memory[0xFAFA] = 0xF9;
-*/
-}
-void pZP() {
-	int a = 0;
-	for (int i = 0; i < 16; ++i) {
-		pHexw(a);
-		std::cout << ": ";
-		for (int j = 0; j < 16; ++j) {
-			pHex(memory[a++]);
-			std::cout << " ";
-		}
-		std::cout << std::endl;
-	}
-}
-
-unsigned char mRead(unsigned short addr) {
-	unsigned char x;
-	x = memory[addr];
-#ifdef TRACEMEM
-	std::cout << "--------------------------------------------- ";
-	pHex(x);
-	std::cout << "<";
-	pHexw(addr);
-	std::cout << std::endl;
-#endif
-	return x;
-}
-
-void mWrite(unsigned short addr, unsigned char data) {
-	/* TODO write data to addr in memory */
-	memory[addr] = data;
-#ifdef TRACEMEM
-	std::cout << "--------------------------------------------- ";
-	pHex(data);
-	std::cout << ">";
-	pHexw(addr);
-	std::cout << std::endl;
-#endif
 }
 
 void putDataToChip(unsigned char data) {
