@@ -16,7 +16,7 @@ class seg {
 public:
 	bool pullup;
 	bool pulldown;
-	bool state;
+	bool on;
 	std::vector<int> gates;
 	std::vector<int> c1c2s;
 };
@@ -31,40 +31,40 @@ public:
 };
 std::vector<trn> trns;
 
-unsigned char readByte(int b7, int b6, int b5, int b4, int b3, int b2, int b1, int b0) {
+unsigned char readByte(unsigned int b7, unsigned int b6, unsigned int b5, unsigned int b4, unsigned int b3, unsigned int b2, unsigned int b1, unsigned int b0) {
 	return
-	segs[b7].state<<7 |
-	segs[b6].state<<6 |
-	segs[b5].state<<5 |
-	segs[b4].state<<4 |
-	segs[b3].state<<3 |
-	segs[b2].state<<2 |
-	segs[b1].state<<1 |
-	segs[b0].state;
+	segs[b7].on<<7 |
+	segs[b6].on<<6 |
+	segs[b5].on<<5 |
+	segs[b4].on<<4 |
+	segs[b3].on<<3 |
+	segs[b2].on<<2 |
+	segs[b1].on<<1 |
+	segs[b0].on;
 }
 
-unsigned short readWord(int b15, int b14, int b13, int b12, int b11, int b10, int b9, int b8, int b7, int b6, int b5, int b4, int b3, int b2, int b1, int b0) {
+unsigned short readWord(unsigned int b15, unsigned int b14, unsigned int b13, unsigned int b12, unsigned int b11, unsigned int b10, unsigned int b9, unsigned int b8, unsigned int b7, unsigned int b6, unsigned int b5, unsigned int b4, unsigned int b3, unsigned int b2, unsigned int b1, unsigned int b0) {
 	return
-	segs[b15].state<<15 |
-	segs[b14].state<<14 |
-	segs[b13].state<<13 |
-	segs[b12].state<<12 |
-	segs[b11].state<<11 |
-	segs[b10].state<<10 |
-	segs[b9].state<<9 |
-	segs[b8].state<<8 |
-	segs[b7].state<<7 |
-	segs[b6].state<<6 |
-	segs[b5].state<<5 |
-	segs[b4].state<<4 |
-	segs[b3].state<<3 |
-	segs[b2].state<<2 |
-	segs[b1].state<<1 |
-	segs[b0].state;
+	segs[b15].on<<15 |
+	segs[b14].on<<14 |
+	segs[b13].on<<13 |
+	segs[b12].on<<12 |
+	segs[b11].on<<11 |
+	segs[b10].on<<10 |
+	segs[b9].on<<9 |
+	segs[b8].on<<8 |
+	segs[b7].on<<7 |
+	segs[b6].on<<6 |
+	segs[b5].on<<5 |
+	segs[b4].on<<4 |
+	segs[b3].on<<3 |
+	segs[b2].on<<2 |
+	segs[b1].on<<1 |
+	segs[b0].on;
 }
 
 bool isHigh(int iseg) {
-	return segs[iseg].state;
+	return segs[iseg].on;
 }
 
 unsigned char rData() {
@@ -91,7 +91,7 @@ unsigned char rS() {
 	return readByte(S7,S6,S5,S4,S3,S2,S1,S0);
 }
 
-unsigned char rPC() {
+unsigned short rPC() {
 	return readWord(PCH7,PCH6,PCH5,PCH4,PCH3,PCH2,PCH1,PCH0,PCL7,PCL6,PCL5,PCL4,PCL3,PCL2,PCL1,PCL0);
 }
 
@@ -114,7 +114,7 @@ void dumpSegs() {
 		} else {
 			std::cout << "0";
 		}
-		if (s.state) {
+		if (s.on) {
 			std::cout << "+";
 		} else {
 			std::cout << "-";
@@ -130,31 +130,30 @@ void dumpRegs() {
 	pHex(rX());
 	std::cout << " Y";
 	pHex(rY());
+	std::cout << " ";
+	std::cout << (isHigh(P7) ? "N" : "n");
+	std::cout << (isHigh(P6) ? "V" : "v");
+	std::cout << ".";
+	std::cout << (isHigh(P4) ? "B" : "b");
+	std::cout << (isHigh(P3) ? "D" : "d");
+	std::cout << (isHigh(P2) ? "I" : "i");
+	std::cout << (isHigh(P1) ? "Z" : "z");
+	std::cout << (isHigh(P0) ? "C" : "c");
 	std::cout << " S";
 	pHex(rS());
 	std::cout << " PC";
 	pHexw(rPC());
-	std::cout << "  ";
 	if (isHigh(CLK1OUT)) {
-		std::cout << "PH1   ";
+		std::cout << "  PH1  ";
 	}
 	if (isHigh(CLK2OUT)) {
-		std::cout << "PH2 ";
+		std::cout << "  PH2";
 		if (isHigh(RW)) {
-			std::cout << "R ";
+			std::cout << " R";
 		} else {
-			std::cout << "W ";
+			std::cout << " W";
 		}
 	}
-/*
-	if (isHigh(CLK2OUT) && !isHigh(RW)) {
-		std::cout << "W";
-	} else if (!isHigh(CLK2OUT) && isHigh(RW)) {
-		std::cout << "R";
-	} else {
-		std::cout << " ";
-	}
-*/
 	std::cout << " DB";
 	pHex(rData());
 	std::cout << " AB";
@@ -176,7 +175,7 @@ void onTrans(trn& t, std::set<int>& rcl) {
 	}
 	t.on = true;
 	addRecalc(t.c1,rcl);
-//	addRecalc(t.c2,rcl); //???
+//	addRecalc(t.c2,rcl); //looks like this is not necessary?
 }
 
 void offTrans(trn& t, std::set<int>& rcl) {
@@ -190,16 +189,20 @@ void offTrans(trn& t, std::set<int>& rcl) {
 
 bool getGroupValue(const std::set<int>& s) {
 	if (s.find(VSS) != s.end()) {
-		return false; /* ground always pulls down */
+		return false;
 	}
 	if (s.find(VCC) != s.end()) {
-		return true; /* power always pulls up */
+		return true;
 	}
 	for (std::set<int>::const_iterator i = s.begin(); i != s.end(); ++i) {
 		const seg& s = segs[*i];
 		if (s.pullup) { return true; }
 		if (s.pulldown) { return false; }
-		if (s.state) { return true; }
+//		if (s.on) { return true; }
+	}
+	for (std::set<int>::const_iterator i = s.begin(); i != s.end(); ++i) {
+		const seg& s = segs[*i];
+		if (s.on) { return true; }
 	}
 	return false;
 }
@@ -235,12 +238,12 @@ void recalcNode(int n, std::set<int>& rcl) {
 		for (std::set<int>::iterator ig = g.begin(); ig != g.end(); ++ig) {
 //std::cout << "ig: " << *ig << std::endl;
 			seg& seg = segs[*ig];
-			if (seg.state != gval) {
-//std::cout << "change seg state " << std::endl;
-				seg.state = gval;
+			if (seg.on != gval) {
+//std::cout << "change seg on " << std::endl;
+				seg.on = gval;
 				for (std::vector<int>::iterator igate = seg.gates.begin(); igate != seg.gates.end(); ++igate) {
 					trn& t = trns[*igate];
-					if (seg.state) {
+					if (seg.on) {
 						onTrans(t,rcl);
 					} else {
 						offTrans(t,rcl);
@@ -310,20 +313,53 @@ void setLow(int iseg) {
 	setSeg(iseg,false);
 }
 
-unsigned char mRead(unsigned short addr) {
-	/* TODO get byte from addr in memory */
-	unsigned char x;
-	x = 0;
-	switch (addr) {
-		case 0: x = 0xA9; break; // LDA #$5A
-		case 1: x = 0x5A; break; //
-		case 2: x = 0x85; break; // STA $88
-		case 3: x = 0x88; break; //
-		case 4: x = 0xA9; break; // LDA #$23
-		case 5: x = 0x23; break; //
-		case 6: x = 0xD0; break; // BNE 0
-		case 7: x = 0xF8; break; //
+unsigned char memory[0x10000];
+void init_mem() {
+	for (int i = 0; i < 0x10000; ++i) {
+		memory[i] = 0;
 	}
+
+	memory[0x0200] = 0xEA; // NOP
+	memory[0x0201] = 0xEA; // NOP
+	memory[0x0202] = 0xA9; // LDA #$5A
+	memory[0x0203] = 0x5A; //
+	memory[0x0204] = 0x85; // STA $88
+	memory[0x0205] = 0x88; //
+	memory[0x0206] = 0xA9; // LDA #$23
+	memory[0x0207] = 0x23; //
+	memory[0x0208] = 0xD0; // BNE 0
+	memory[0x0209] = 0xF8; //
+
+	memory[0xFFFC] = 0x02;  // RESET --> $0202
+	memory[0xFFFD] = 0x02;
+
+//	memory[0xFF] = 0x68;  // PLA
+/*
+	memory[0xFF] = 0xFF;
+	memory[0xFFFF] = 0xFE;
+	memory[0xFEFE] = 0xFD;
+	memory[0xFDFD] = 0xFC;
+	memory[0xFCFC] = 0xFB;
+	memory[0xFBFB] = 0xFA;
+	memory[0xFAFA] = 0xF9;
+*/
+}
+void pZP() {
+	int a = 0;
+	for (int i = 0; i < 16; ++i) {
+		pHexw(a);
+		std::cout << ": ";
+		for (int j = 0; j < 16; ++j) {
+			pHex(memory[a++]);
+			std::cout << " ";
+		}
+		std::cout << std::endl;
+	}
+}
+
+unsigned char mRead(unsigned short addr) {
+	unsigned char x;
+	x = memory[addr];
 #ifdef TRACEMEM
 	std::cout << "--------------------------------------------- ";
 	pHex(x);
@@ -336,6 +372,7 @@ unsigned char mRead(unsigned short addr) {
 
 void mWrite(unsigned short addr, unsigned char data) {
 	/* TODO write data to addr in memory */
+	memory[addr] = data;
 #ifdef TRACEMEM
 	std::cout << "--------------------------------------------- ";
 	pHex(data);
@@ -421,6 +458,7 @@ void step() {
 
 
 void init() {
+	init_mem();
 	std::cout << "initializing CPU..." << std::endl;
 //dumpRegs();
 //dumpSegs();
@@ -451,9 +489,10 @@ recalc(s);
 //dumpSegs();
 //	std::cout << "recalc all" << std::endl;
 //	recalcAll();
+rw();
 dumpRegs();
-	std::cout << "   [50 cycles]" << std::endl;
-	for (int i(0); i < 50; ++i) {
+	std::cout << "some power-up pre-reset cycles" << std::endl;
+	for (int i(0); i < 10; ++i) {
 		step();
 	}
 
@@ -489,7 +528,7 @@ int main(int argc, char *argv[])
 			seg s;
 			s.pullup = b_on;
 			s.pulldown = false;
-			s.state = false;
+			s.on = false;
 			segs.push_back(s);
 		}
 	}
