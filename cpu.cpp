@@ -14,7 +14,8 @@
 #include "nodes.h"
 #include "addressbus.h"
 
-//#define TRACE 1
+#define TRACE 1
+#define TRACEMEM 1
 
 CPU::CPU(AddressBus& addressBus) :
 addressBus(addressBus) {
@@ -88,13 +89,6 @@ addressBus(addressBus) {
         segs[t.c1].c1c2s.push_back(i);
         segs[t.c2].c1c2s.push_back(i);
     }
-    // TODO:	init();
-
-    std::cout << "running some..." << std::endl;
-    for (int i(0); i < 100; ++i) {
-        step();
-    }
-    std::cout << "end" << std::endl;
 }
 
 CPU::~CPU() {
@@ -273,7 +267,7 @@ static void onTrans(trn& t, std::set<int>& rcl) {
     }
     t.on = true;
     addRecalc(t.c1, rcl);
-    //	addRecalc(t.c2,rcl); //looks like this is not necessary?
+    addRecalc(t.c2, rcl); //looks like this is not necessary?
 }
 
 static void offTrans(trn& t, std::set<int>& rcl) {
@@ -300,7 +294,9 @@ bool CPU::getGroupValue(const std::set<int>& s) {
         if (s.pulldown) {
             return false;
         }
-        //		if (s.on) { return true; }
+        if (s.on) {
+            return true;
+        }
     }
     for (std::set<int>::const_iterator i = s.begin(); i != s.end(); ++i) {
         const seg& s = segs[*i];
@@ -515,18 +511,22 @@ void CPU::powerOn() {
     s.insert(SO);
     recalc(s);
     //dumpSegs();
-    //	std::cout << "recalc all" << std::endl;
-    //	recalcAll();
+    std::cout << "recalc all" << std::endl;
+    recalcAll();
     rw();
 #ifdef TRACE
     dumpRegs();
 #endif
-    //	std::cout << "some power-up pre-reset cycles" << std::endl;
-    //	for (int i(0); i < 10; ++i) {
-    //		step();
-    //	}
-    //
-    //	std::cout << "   RESET" << std::endl;
+    std::cout << "some power-up pre-reset cycles" << std::endl;
+    for (int i(0); i < 40; ++i) {
+        step();
+    }
+
+    std::cout << "   RESET" << std::endl;
+    reset();
+    for (int i(0); i < 40; ++i) {
+        step();
+    }
 }
 
 void CPU::reset() {
