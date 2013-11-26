@@ -53,7 +53,21 @@ int main(int argc, char *argv[]) {
 
     CPU cpu(mem);
 
+
+    /* Now let's just run some things to play with it. */
+    std::cout << "begin power-up..." << std::endl;
     cpu.powerOn();
+
+    std::cout << "some power-up pre-reset cycles..." << std::endl;
+    for (int i(0); i < 10; ++i) {
+        cpu.tick();
+    }
+
+    std::cout << "RESET..." << std::endl;
+    cpu.reset();
+    for (int i(0); i < 40; ++i) {
+        cpu.tick();
+    }
 
     return EXIT_SUCCESS;
 }

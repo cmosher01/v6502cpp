@@ -14,8 +14,21 @@
 #include "nodes.h"
 #include "addressbus.h"
 
-#define TRACE 1
-#define TRACEMEM 1
+#define TRACEREG 1
+//#define TRACESEG 1
+//#define TRACEMEM 1
+
+#ifdef TRACEREG
+#define dumpRegs() dumpRegisters()
+#else
+#define dumpRegs()
+#endif
+
+#ifdef TRACESEG
+#define dumpSegs() dumpSegments()
+#else
+#define dumpSegs()
+#endif
 
 CPU::CPU(AddressBus& addressBus) :
 addressBus(addressBus) {
@@ -102,33 +115,33 @@ void CPU::tick() {
 unsigned char CPU::readByte(unsigned int b7, unsigned int b6, unsigned int b5, unsigned int b4, unsigned int b3, unsigned int b2, unsigned int b1, unsigned int b0) {
     return
     segs[b7].on << 7 |
-            segs[b6].on << 6 |
-            segs[b5].on << 5 |
-            segs[b4].on << 4 |
-            segs[b3].on << 3 |
-            segs[b2].on << 2 |
-            segs[b1].on << 1 |
-            segs[b0].on;
+    segs[b6].on << 6 |
+    segs[b5].on << 5 |
+    segs[b4].on << 4 |
+    segs[b3].on << 3 |
+    segs[b2].on << 2 |
+    segs[b1].on << 1 |
+    segs[b0].on;
 }
 
 unsigned short CPU::readWord(unsigned int b15, unsigned int b14, unsigned int b13, unsigned int b12, unsigned int b11, unsigned int b10, unsigned int b9, unsigned int b8, unsigned int b7, unsigned int b6, unsigned int b5, unsigned int b4, unsigned int b3, unsigned int b2, unsigned int b1, unsigned int b0) {
     return
     segs[b15].on << 15 |
-            segs[b14].on << 14 |
-            segs[b13].on << 13 |
-            segs[b12].on << 12 |
-            segs[b11].on << 11 |
-            segs[b10].on << 10 |
-            segs[b9].on << 9 |
-            segs[b8].on << 8 |
-            segs[b7].on << 7 |
-            segs[b6].on << 6 |
-            segs[b5].on << 5 |
-            segs[b4].on << 4 |
-            segs[b3].on << 3 |
-            segs[b2].on << 2 |
-            segs[b1].on << 1 |
-            segs[b0].on;
+    segs[b14].on << 14 |
+    segs[b13].on << 13 |
+    segs[b12].on << 12 |
+    segs[b11].on << 11 |
+    segs[b10].on << 10 |
+    segs[b9].on << 9 |
+    segs[b8].on << 8 |
+    segs[b7].on << 7 |
+    segs[b6].on << 6 |
+    segs[b5].on << 5 |
+    segs[b4].on << 4 |
+    segs[b3].on << 3 |
+    segs[b2].on << 2 |
+    segs[b1].on << 1 |
+    segs[b0].on;
 }
 
 bool CPU::isHigh(int iseg) {
@@ -171,31 +184,32 @@ static void pHexw(unsigned short x) {
     std::cout << std::setw(4) << std::setfill('0') << std::hex << (unsigned long) x << std::dec;
 }
 
-void CPU::dumpSegs() {
+void CPU::dumpSegments() {
     for (int i = 0; i < segs.size(); ++i) {
-        std::cout << i << " ";
+        //        std::cout << i << " ";
         seg& s = segs[i];
         if (s.pullup) {
-            std::cout << "+";
+            std::cout << "U";
         } else if (s.pulldown) {
-            std::cout << "-";
+            std::cout << "D";
         } else {
-            std::cout << "0";
+            std::cout << "f";
         }
         if (s.on) {
             std::cout << "+";
         } else {
             std::cout << "-";
         }
-        std::cout << std::endl;
+        //        std::cout << std::endl;
     }
+    std::cout << std::endl;
 }
 
 unsigned char CPU::mRead(unsigned short addr) {
     unsigned char x;
     x = this->addressBus.read(addr);
 #ifdef TRACEMEM
-    std::cout << "--------------------------------------------- ";
+    std::cout << "-------------------------------------------------- ";
     pHex(x);
     std::cout << "<";
     pHexw(addr);
@@ -207,7 +221,7 @@ unsigned char CPU::mRead(unsigned short addr) {
 void CPU::mWrite(unsigned short addr, unsigned char data) {
     this->addressBus.write(addr, data);
 #ifdef TRACEMEM
-    std::cout << "--------------------------------------------- ";
+    std::cout << "-------------------------------------------------- ";
     pHex(data);
     std::cout << ">";
     pHexw(addr);
@@ -215,7 +229,7 @@ void CPU::mWrite(unsigned short addr, unsigned char data) {
 #endif
 }
 
-void CPU::dumpRegs() {
+void CPU::dumpRegisters() {
     std::cout << "A";
     pHex(rA());
     std::cout << " X";
@@ -246,6 +260,9 @@ void CPU::dumpRegs() {
             std::cout << " W";
         }
     }
+    if (! (isHigh(CLK1OUT) || isHigh(CLK2OUT))) {
+        std::cout << "  PH-  ";
+    }
     std::cout << " DB";
     pHex(rData());
     std::cout << " AB";
@@ -261,22 +278,12 @@ static void addRecalc(int n, std::set<int>& rcl) {
     rcl.insert(n);
 }
 
-static void onTrans(trn& t, std::set<int>& rcl) {
-    if (t.on) {
-        return;
+static void setTrans(trn& t, bool on, std::set<int>& rcl) {
+    if (t.on != on) {
+        t.on = on;
+        addRecalc(t.c1, rcl);
+        addRecalc(t.c2, rcl);
     }
-    t.on = true;
-    addRecalc(t.c1, rcl);
-    addRecalc(t.c2, rcl); //looks like this is not necessary?
-}
-
-static void offTrans(trn& t, std::set<int>& rcl) {
-    if (!t.on) {
-        return;
-    }
-    t.on = false;
-    addRecalc(t.c1, rcl);
-    addRecalc(t.c2, rcl);
 }
 
 bool CPU::getGroupValue(const std::set<int>& s) {
@@ -294,12 +301,6 @@ bool CPU::getGroupValue(const std::set<int>& s) {
         if (s.pulldown) {
             return false;
         }
-        if (s.on) {
-            return true;
-        }
-    }
-    for (std::set<int>::const_iterator i = s.begin(); i != s.end(); ++i) {
-        const seg& s = segs[*i];
         if (s.on) {
             return true;
         }
@@ -335,19 +336,14 @@ void CPU::recalcNode(int n, std::set<int>& rcl) {
         addToGroup(n, g);
         const bool gval = getGroupValue(g);
         //std::cout << "gval: " << gval << " grp size: " << g.size() << std::endl;
+
         for (std::set<int>::iterator ig = g.begin(); ig != g.end(); ++ig) {
             //std::cout << "ig: " << *ig << std::endl;
             seg& seg = segs[*ig];
             if (seg.on != gval) {
-                //std::cout << "change seg on " << std::endl;
                 seg.on = gval;
                 for (std::vector<int>::iterator igate = seg.gates.begin(); igate != seg.gates.end(); ++igate) {
-                    trn& t = trns[*igate];
-                    if (seg.on) {
-                        onTrans(t, rcl);
-                    } else {
-                        offTrans(t, rcl);
-                    }
+                    setTrans(trns[*igate], seg.on, rcl);
                 }
             }
         }
@@ -365,7 +361,6 @@ void CPU::recalc(const std::set<int>& s) {
         std::set<int> rcl;
         for (std::set<int>::const_iterator ilist = list.begin(); ilist != list.end(); ++ilist) {
             recalcNode(*ilist, rcl);
-            //std::cout << "done recalcNode" << std::endl;
         }
         //		done.insert(rcl.begin(),rcl.end());
         //		std::set<int> v;
@@ -402,20 +397,7 @@ void CPU::setSeg(int iseg, bool up) {
     s.pulldown = !up;
 }
 
-void CPU::setHigh(int iseg) {
-    setSeg(iseg, true);
-}
-
-void CPU::setLow(int iseg) {
-    setSeg(iseg, false);
-}
-
-void CPU::putDataToChip(unsigned char data) {
-    /*
-            std::cout << "d2cpu: ";
-            pHex(data);
-            std::cout << std::endl;
-     */
+void CPU::putDataToChip(const unsigned char data) {
     unsigned char x = data;
 
     setSeg(DB0, x & 1);
@@ -460,76 +442,60 @@ static void addDataToRecalc(std::set<int>& s) {
 
 void CPU::rw() {
     readBus();
+
     std::set<int> s;
     addDataToRecalc(s);
     recalc(s);
+
     writeBus();
 }
 
 void CPU::step() {
-    if (isHigh(CLK0)) {
-        setLow(CLK0);
-        recalc(CLK0);
-    } else {
-        setHigh(CLK0);
-        recalc(CLK0);
+    const bool h = isHigh(CLK0);
+
+    setSeg(CLK0, !h);
+    recalc(CLK0);
+
+    if (!h) {
         rw();
     }
-#ifdef TRACE
-    dumpRegs();
-#endif
 
+    dumpRegs();
+    dumpSegs();
 }
 
 void CPU::powerOn() {
-    std::cout << "initializing CPU..." << std::endl;
-    //dumpRegs();
-    //dumpSegs();
-    recalcAll();
-    //dumpSegs();
-#ifdef TRACE
+    std::cout << "initial state" << std::endl;
     dumpRegs();
-#endif
-    setHigh(VCC);
-    setLow(VSS);
+    dumpSegs();
 
-    setHigh(CLK0);
-    setHigh(IRQ);
-    setLow(RES);
-    setHigh(NMI);
-    setHigh(RDY);
-    setLow(SO);
-
-    std::set<int> s;
-    s.insert(VCC);
-    s.insert(VSS);
-    s.insert(CLK0);
-    s.insert(IRQ);
-    s.insert(RES);
-    s.insert(NMI);
-    s.insert(RDY);
-    s.insert(SO);
-    recalc(s);
-    //dumpSegs();
-    std::cout << "recalc all" << std::endl;
+    std::cout << "recalcAll..." << std::endl;
     recalcAll();
-    rw();
-#ifdef TRACE
     dumpRegs();
-#endif
-    std::cout << "some power-up pre-reset cycles" << std::endl;
-    for (int i(0); i < 40; ++i) {
-        step();
-    }
+    dumpSegs();
 
-    std::cout << "   RESET" << std::endl;
-    reset();
-    for (int i(0); i < 40; ++i) {
-        step();
-    }
+
+
+    std::cout << "setting pins..." << std::endl;
+    setSeg(VCC, true);
+    setSeg(VSS, false);
+
+    setSeg(CLK0, true);
+    setSeg(IRQ, true);
+    setSeg(RES, false);
+    setSeg(NMI, true);
+    setSeg(RDY, true);
+    setSeg(SO, false);
+
+
+
+    std::cout << "recalc all..." << std::endl;
+    recalcAll();
+    dumpRegs();
+    dumpSegs();
 }
 
 void CPU::reset() {
-    setHigh(RES);
+    setSeg(RES, true);
     recalc(RES);
 }

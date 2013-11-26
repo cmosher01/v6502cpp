@@ -39,8 +39,8 @@ private:
     unsigned char rY();
     unsigned char rS();
     unsigned short rPC();
-    void dumpSegs();
-    void dumpRegs();
+    void dumpSegments();
+    void dumpRegisters();
     bool getGroupValue(const std::set<int>& s);
     void addToGroup(int n, std::set<int>& s);
     void recalcNode(int n, std::set<int>& rcl);
