@@ -8,4 +8,5 @@ v6502.o: v6502.cpp cpu.h addressbus.h
 cpu.o: cpu.cpp cpu.h addressbus.h nodes.h
 
 clean:
-	rm *.o
+	-rm *.o
+	-rm v6502

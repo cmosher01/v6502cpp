@@ -9,7 +9,7 @@ public:
 
     AddressBus() {
         for (int i = 0; i < 0x10000; ++i) {
-            memory[i] = 0;
+            memory[i] = 0x95;
         }
     }
     ~AddressBus() {}

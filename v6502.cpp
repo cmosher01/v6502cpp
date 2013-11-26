@@ -37,6 +37,11 @@
 
 int main(int argc, char *argv[]) {
     AddressBus mem;
+    CPU cpu(mem);
+
+
+
+    /* Load some test program into memory */
     mem.write(0x0200, 0xEA); // NOP
     mem.write(0x0201, 0xEA); // NOP
     mem.write(0x0202, 0xA9); // LDA #$5A
@@ -45,27 +50,28 @@ int main(int argc, char *argv[]) {
     mem.write(0x0205, 0x88); //
     mem.write(0x0206, 0xA9); // LDA #$23
     mem.write(0x0207, 0x23); //
-    mem.write(0x0208, 0xD0); // BNE 0
-    mem.write(0x0209, 0xF8); //
+    mem.write(0x0208, 0xD0); // BNE $0200
+    mem.write(0x0209, 0xF6); //
 
     mem.write(0xFFFC, 0x02); // RESET --> $0202
     mem.write(0xFFFD, 0x02);
 
-    CPU cpu(mem);
 
 
-    /* Now let's just run some things to play with it. */
+    /* turn on the CPU */
     std::cout << "begin power-up..." << std::endl;
     cpu.powerOn();
 
+    /* run it a bit, before resetting */
     std::cout << "some power-up pre-reset cycles..." << std::endl;
     for (int i(0); i < 10; ++i) {
         cpu.tick();
     }
 
+    /* reset the CPU, and let it run for a little while, then exit */
     std::cout << "RESET..." << std::endl;
     cpu.reset();
-    for (int i(0); i < 40; ++i) {
+    for (int i(0); i < 50; ++i) {
         cpu.tick();
     }
 
