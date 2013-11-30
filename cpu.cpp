@@ -36,6 +36,15 @@
 #define dumpSegs()
 #endif
 
+static void pHex(const unsigned char x) {
+    std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned long) x << std::dec;
+}
+
+static void pHexw(const unsigned short x) {
+    std::cout << std::setw(4) << std::setfill('0') << std::hex << (unsigned long) x << std::dec;
+}
+
+
 
 
 
@@ -241,8 +250,7 @@ void CPU::addDataToRecalc(std::set<int>& s) {
 }
 
 unsigned char CPU::mRead(unsigned short addr) {
-    unsigned char x;
-    x = this->addressBus.read(addr);
+    const unsigned char x = this->addressBus.read(addr);
 #ifdef TRACEMEM
     std::cout << "-------------------------------------------------- ";
     pHex(x);
@@ -368,6 +376,12 @@ void CPU::recalc(const int iSeg) {
     recalc(riSeg);
 }
 
+/*
+ * Recalculate segment states (on/off), based on the fact that the segments
+ * in riSeg have just changed state. Keep track of which other segments are
+ * affected, and repeat the process on those segments. Repeat until no more
+ * segments change state.
+ */
 void CPU::recalc(const std::set<int>& riSeg) {
     std::set<int> riSegRecalc(riSeg);
     for (int sane = 0; sane < 100; ++sane) {
@@ -384,6 +398,14 @@ void CPU::recalc(const std::set<int>& riSeg) {
     std::cerr << "ERROR: reached maximum iteration limit while recalculating CPU state" << std::endl;
 }
 
+/*
+ * Gets group of segments currently electrically connected to iSeg,
+ * gets what their group value is (or should be), goes through all
+ * those segments and sets their "on" value. For all connected gates,
+ * turn on/off, and indicate that the segments connected to those
+ * transistors's source and drain legs have changed, by adding them
+ * to riSegChanged.
+ */
 void CPU::recalcNode(const int iSeg, std::set<int>& riSegChanged) {
     if (!(iSeg == VCC || iSeg == VSS)) {
         std::set<int> riSegGroup;
@@ -482,13 +504,6 @@ bool CPU::getGroupValue(const std::set<int>& riSeg) {
 
 
 
-static void pHex(unsigned char x) {
-    std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned long) x << std::dec;
-}
-
-static void pHexw(unsigned short x) {
-    std::cout << std::setw(4) << std::setfill('0') << std::hex << (unsigned long) x << std::dec;
-}
 
 void CPU::dumpSegments() {
     for (int i = 0; i < segs.size(); ++i) {
