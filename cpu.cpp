@@ -114,38 +114,38 @@ void CPU::tick() {
 
 unsigned char CPU::readByte(unsigned int b7, unsigned int b6, unsigned int b5, unsigned int b4, unsigned int b3, unsigned int b2, unsigned int b1, unsigned int b0) {
     return
-    segs[b7].on << 7 |
-    segs[b6].on << 6 |
-    segs[b5].on << 5 |
-    segs[b4].on << 4 |
-    segs[b3].on << 3 |
-    segs[b2].on << 2 |
-    segs[b1].on << 1 |
-    segs[b0].on;
+        segs[b7].on << 7 |
+        segs[b6].on << 6 |
+        segs[b5].on << 5 |
+        segs[b4].on << 4 |
+        segs[b3].on << 3 |
+        segs[b2].on << 2 |
+        segs[b1].on << 1 |
+        segs[b0].on;
 }
 
 unsigned short CPU::readWord(unsigned int b15, unsigned int b14, unsigned int b13, unsigned int b12, unsigned int b11, unsigned int b10, unsigned int b9, unsigned int b8, unsigned int b7, unsigned int b6, unsigned int b5, unsigned int b4, unsigned int b3, unsigned int b2, unsigned int b1, unsigned int b0) {
     return
-    segs[b15].on << 15 |
-    segs[b14].on << 14 |
-    segs[b13].on << 13 |
-    segs[b12].on << 12 |
-    segs[b11].on << 11 |
-    segs[b10].on << 10 |
-    segs[b9].on << 9 |
-    segs[b8].on << 8 |
-    segs[b7].on << 7 |
-    segs[b6].on << 6 |
-    segs[b5].on << 5 |
-    segs[b4].on << 4 |
-    segs[b3].on << 3 |
-    segs[b2].on << 2 |
-    segs[b1].on << 1 |
-    segs[b0].on;
+        segs[b15].on << 15 |
+        segs[b14].on << 14 |
+        segs[b13].on << 13 |
+        segs[b12].on << 12 |
+        segs[b11].on << 11 |
+        segs[b10].on << 10 |
+        segs[b9].on << 9 |
+        segs[b8].on << 8 |
+        segs[b7].on << 7 |
+        segs[b6].on << 6 |
+        segs[b5].on << 5 |
+        segs[b4].on << 4 |
+        segs[b3].on << 3 |
+        segs[b2].on << 2 |
+        segs[b1].on << 1 |
+        segs[b0].on;
 }
 
-bool CPU::isHigh(int iseg) {
-    return segs[iseg].on;
+bool CPU::isSegOn(int iSeg) {
+    return segs[iSeg].on;
 }
 
 unsigned char CPU::rData() {
@@ -237,30 +237,30 @@ void CPU::dumpRegisters() {
     std::cout << " Y";
     pHex(rY());
     std::cout << " ";
-    std::cout << (isHigh(P7) ? "N" : "n");
-    std::cout << (isHigh(P6) ? "V" : "v");
+    std::cout << (isSegOn(P7) ? "N" : "n");
+    std::cout << (isSegOn(P6) ? "V" : "v");
     std::cout << ".";
-    std::cout << (isHigh(P4) ? "B" : "b");
-    std::cout << (isHigh(P3) ? "D" : "d");
-    std::cout << (isHigh(P2) ? "I" : "i");
-    std::cout << (isHigh(P1) ? "Z" : "z");
-    std::cout << (isHigh(P0) ? "C" : "c");
+    std::cout << (isSegOn(P4) ? "B" : "b");
+    std::cout << (isSegOn(P3) ? "D" : "d");
+    std::cout << (isSegOn(P2) ? "I" : "i");
+    std::cout << (isSegOn(P1) ? "Z" : "z");
+    std::cout << (isSegOn(P0) ? "C" : "c");
     std::cout << " S";
     pHex(rS());
     std::cout << " PC";
     pHexw(rPC());
-    if (isHigh(CLK1OUT)) {
+    if (isSegOn(CLK1OUT)) {
         std::cout << "  PH1  ";
     }
-    if (isHigh(CLK2OUT)) {
+    if (isSegOn(CLK2OUT)) {
         std::cout << "  PH2";
-        if (isHigh(RW)) {
+        if (isSegOn(RW)) {
             std::cout << " R";
         } else {
             std::cout << " W";
         }
     }
-    if (! (isHigh(CLK1OUT) || isHigh(CLK2OUT))) {
+    if (!(isSegOn(CLK1OUT) || isSegOn(CLK2OUT))) {
         std::cout << "  PH-  ";
     }
     std::cout << " DB";
@@ -271,30 +271,32 @@ void CPU::dumpRegisters() {
     //pZP();
 }
 
-static void addRecalc(int n, std::set<int>& rcl) {
-    if (n == VCC || n == VSS) {
-        return;
+static void addRecalc(const int iSeg, std::set<int>& riSeg) {
+    if (!(iSeg == VCC || iSeg == VSS)) {
+        riSeg.insert(iSeg);
     }
-    rcl.insert(n);
 }
 
-static void setTrans(trn& t, bool on, std::set<int>& rcl) {
+static void setTrans(trn& t, const bool on, std::set<int>& riSeg) {
     if (t.on != on) {
         t.on = on;
-        addRecalc(t.c1, rcl);
-        addRecalc(t.c2, rcl);
+        addRecalc(t.c1, riSeg);
+        addRecalc(t.c2, riSeg);
     }
 }
 
-bool CPU::getGroupValue(const std::set<int>& s) {
-    if (s.find(VSS) != s.end()) {
+bool CPU::getGroupValue(const std::set<int>& riSeg) {
+    /* If group contain ground, it's OFF. */
+    if (riSeg.find(VSS) != riSeg.end()) {
         return false;
     }
-    if (s.find(VCC) != s.end()) {
+    /* If group contain voltage supply, it's ON. */
+    if (riSeg.find(VCC) != riSeg.end()) {
         return true;
     }
-    for (std::set<int>::const_iterator i = s.begin(); i != s.end(); ++i) {
-        const seg& s = segs[*i];
+
+    for (std::set<int>::const_iterator iSeg = riSeg.begin(); iSeg != riSeg.end(); ++iSeg) {
+        const seg& s = segs[*iSeg];
         if (s.pullup) {
             return true;
         }
@@ -308,59 +310,65 @@ bool CPU::getGroupValue(const std::set<int>& s) {
     return false;
 }
 
-void CPU::addToGroup(int n, std::set<int>& s) {
-    const std::pair < std::set<int>::iterator, bool> ret = s.insert(n);
+/*
+ * Adds segment iSeg, and all segments electrically connected to it, to riSeg.
+ * This happens recursively, but we don't recurse past ground or voltage supply.
+ */
+void CPU::addToGroup(int iSeg, std::set<int>& riSeg) {
+    const std::pair<std::set<int>::iterator, bool> ret = riSeg.insert(iSeg);
     if (!ret.second) {
         return;
     }
-    if (n == VCC || n == VSS) {
+    if (iSeg == VCC || iSeg == VSS) {
         return;
     }
-    //std::cout << "a: " << n << std::endl;
-    const seg& sg = segs[n];
-    for (std::vector<int>::const_iterator itrn = sg.c1c2s.begin(); itrn != sg.c1c2s.end(); ++itrn) {
-        const trn& t = trns[*itrn];
+
+    /*
+     * For every ON transistor this seg is connected to via a leg (source or
+     * drain), add the seg that's connected to the OTHER leg of the transistor.
+     * This is a RECURSIVE addition.
+     */
+    const seg& s = segs[iSeg];
+    for (std::vector<int>::const_iterator iTrn = s.c1c2s.begin(); iTrn != s.c1c2s.end(); ++iTrn) {
+        const trn& t = trns[*iTrn];
         if (t.on) {
-            if (t.c1 == n) {
-                addToGroup(t.c2, s);
-            } else if (t.c2 == n) {
-                addToGroup(t.c1, s);
+            if (t.c1 == iSeg) {
+                addToGroup(t.c2, riSeg);
+            } else if (t.c2 == iSeg) {
+                addToGroup(t.c1, riSeg);
             }
         }
     }
 }
 
-void CPU::recalcNode(int n, std::set<int>& rcl) {
-    if (!(n == VCC || n == VSS)) {
-        std::set<int> g;
-        addToGroup(n, g);
-        const bool gval = getGroupValue(g);
-        //std::cout << "gval: " << gval << " grp size: " << g.size() << std::endl;
+void CPU::recalcNode(const int iSeg, std::set<int>& riSegChanged) {
+    if (!(iSeg == VCC || iSeg == VSS)) {
+        std::set<int> riSegGroup;
+        addToGroup(iSeg, riSegGroup);
+        const bool groupOn = getGroupValue(riSegGroup);
 
-        for (std::set<int>::iterator ig = g.begin(); ig != g.end(); ++ig) {
-            //std::cout << "ig: " << *ig << std::endl;
-            seg& seg = segs[*ig];
-            if (seg.on != gval) {
-                seg.on = gval;
-                for (std::vector<int>::iterator igate = seg.gates.begin(); igate != seg.gates.end(); ++igate) {
-                    setTrans(trns[*igate], seg.on, rcl);
+        for (std::set<int>::iterator iSegGroup = riSegGroup.begin(); iSegGroup != riSegGroup.end(); ++iSegGroup) {
+            seg& s = segs[*iSegGroup];
+            if (s.on != groupOn) {
+                s.on = groupOn;
+                for (std::vector<int>::iterator iTrnGate = s.gates.begin(); iTrnGate != s.gates.end(); ++iTrnGate) {
+                    setTrans(trns[*iTrnGate], s.on, riSegChanged);
                 }
             }
         }
     }
 }
 
-void CPU::recalc(const std::set<int>& s) {
-    std::set<int> list(s);
+void CPU::recalc(const std::set<int>& riSeg) {
+    std::set<int> riSegRecalc(riSeg);
     //	std::set<int> done;
     for (int sane = 0; sane < 100; ++sane) {
-        //std::cout << "rc: " << list.size() << std::endl;
-        if (!list.size()) {
+        if (!riSegRecalc.size()) {
             return;
         }
-        std::set<int> rcl;
-        for (std::set<int>::const_iterator ilist = list.begin(); ilist != list.end(); ++ilist) {
-            recalcNode(*ilist, rcl);
+        std::set<int> riSegChanged;
+        for (std::set<int>::const_iterator iSegRecalc = riSegRecalc.begin(); iSegRecalc != riSegRecalc.end(); ++iSegRecalc) {
+            recalcNode(*iSegRecalc, riSegChanged);
         }
         //		done.insert(rcl.begin(),rcl.end());
         //		std::set<int> v;
@@ -370,34 +378,32 @@ void CPU::recalc(const std::set<int>& s) {
         //std::cout << "hit stasis" << std::endl;
         //			return;
         //		}
-        list = rcl;
+        riSegRecalc = riSegChanged;
     }
     std::cerr << "ERROR: reached maximum iteration limit while recalculating CPU state" << std::endl;
 }
 
-void CPU::recalc(int n) {
-    std::set<int> s;
-    s.insert(n);
-    recalc(s);
+void CPU::recalc(const int iSeg) {
+    std::set<int> riSeg;
+    addRecalc(iSeg,riSeg);
+    recalc(riSeg);
 }
 
 void CPU::recalcAll() {
-    std::set<int> s;
-    for (int i = 0; i < segs.size(); ++i) {
-        if (!(i == VCC || i == VSS)) {
-            s.insert(i);
-        }
+    std::set<int> riSeg;
+    for (int iSeg = 0; iSeg < segs.size(); ++iSeg) {
+        addRecalc(iSeg,riSeg);
     }
-    recalc(s);
+    recalc(riSeg);
 }
 
-void CPU::setSeg(int iseg, bool up) {
-    seg& s = segs[iseg];
+void CPU::setSeg(const int iSeg, const bool up) {
+    seg& s = segs[iSeg];
     s.pullup = up;
     s.pulldown = !up;
 }
 
-void CPU::putDataToChip(const unsigned char data) {
+void CPU::setDataSegs(const unsigned char data) {
     unsigned char x = data;
 
     setSeg(DB0, x & 1);
@@ -418,13 +424,13 @@ void CPU::putDataToChip(const unsigned char data) {
 }
 
 void CPU::readBus() {
-    if (isHigh(RW)) {
-        putDataToChip(mRead(rAddr()));
+    if (isSegOn(RW)) {
+        setDataSegs(mRead(rAddr()));
     }
 }
 
 void CPU::writeBus() {
-    if (!isHigh(RW)) {
+    if (!isSegOn(RW)) {
         mWrite(rAddr(), rData());
     }
 }
@@ -451,7 +457,7 @@ void CPU::rw() {
 }
 
 void CPU::step() {
-    const bool h = isHigh(CLK0);
+    const bool h = isSegOn(CLK0);
 
     setSeg(CLK0, !h);
     recalc(CLK0);
