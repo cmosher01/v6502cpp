@@ -29,9 +29,11 @@ private:
     std::vector<trn> trns;
     AddressBus& addressBus;
 
+    void addDataToRecalc(std::set<int>& s);
+    void addRecalc(const int iSeg, std::set<int>& riSeg);
+    void setTrans(trn& t, const bool on, std::set<int>& riSeg);
     unsigned char readByte(unsigned int b7, unsigned int b6, unsigned int b5, unsigned int b4, unsigned int b3, unsigned int b2, unsigned int b1, unsigned int b0);
     unsigned short readWord(unsigned int b15, unsigned int b14, unsigned int b13, unsigned int b12, unsigned int b11, unsigned int b10, unsigned int b9, unsigned int b8, unsigned int b7, unsigned int b6, unsigned int b5, unsigned int b4, unsigned int b3, unsigned int b2, unsigned int b1, unsigned int b0);
-    bool isSegOn(int iseg);
     unsigned char rData();
     unsigned short rAddr();
     unsigned char rA();
