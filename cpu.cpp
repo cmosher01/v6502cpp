@@ -434,7 +434,7 @@ void CPU::recalc(const std::set<int>& riSeg) {
  * gets what their group value is (or should be), goes through all
  * those segments and sets their "on" value. For all connected gates,
  * turn on/off, and indicate that the segments connected to those
- * transistors's source and drain legs have changed, by adding them
+ * transistors' source and drain legs have changed, by adding them
  * to riSegChanged.
  */
 void CPU::recalcNode(const int iSeg, std::set<int>& riSegChanged) {
@@ -448,7 +448,7 @@ void CPU::recalcNode(const int iSeg, std::set<int>& riSegChanged) {
             if (s.on != groupOn) {
                 s.on = groupOn;
                 for (std::vector<int>::iterator iTrnGate = s.gates.begin(); iTrnGate != s.gates.end(); ++iTrnGate) {
-                    setTrans(trns[*iTrnGate], s.on, riSegChanged);
+                    setTrans(trns[*iTrnGate], groupOn, riSegChanged);
                 }
             }
         }
@@ -501,14 +501,16 @@ void CPU::addToGroup(int iSeg, std::set<int>& riSeg) {
 }
 
 bool CPU::getGroupValue(const std::set<int>& riSeg) {
-    /* If group contain ground, it's OFF. */
+    /* If group contains ground, it's OFF, */
     if (riSeg.find(VSS) != riSeg.end()) {
         return false;
     }
-    /* If group contain voltage supply, it's ON. */
-    if (riSeg.find(VCC) != riSeg.end()) {
+    /* otherwise, if group contains voltage supply, it's ON. */
+    else if (riSeg.find(VCC) != riSeg.end()) {
         return true;
     }
+
+
 
     for (std::set<int>::const_iterator iSeg = riSeg.begin(); iSeg != riSeg.end(); ++iSeg) {
         const seg& s = segs[*iSeg];
