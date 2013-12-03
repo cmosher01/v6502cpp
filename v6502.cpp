@@ -59,14 +59,18 @@ int main(int argc, char *argv[]) {
 
 
     /* turn on the CPU */
+    std::cout << "----------------------------------------" << std::endl;
     std::cout << "begin power-up..." << std::endl;
     cpu.powerOn();
+    std::cout << "end power-up..." << std::endl;
+    std::cout << "----------------------------------------" << std::endl;
 
     /* run it a bit, before resetting */
     std::cout << "some power-up pre-reset cycles..." << std::endl;
     for (int i(0); i < 10; ++i) {
         cpu.tick();
     }
+    std::cout << "----------------------------------------" << std::endl;
 
     /* reset the CPU, and let it run for a little while, then exit */
     std::cout << "RESET..." << std::endl;

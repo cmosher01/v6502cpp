@@ -139,27 +139,47 @@ void CPU::powerOn() {
     dumpRegs();
     dumpSegs();
 
-    std::cout << "recalcAll..." << std::endl;
-    recalcAll();
-    dumpRegs();
-    dumpSegs();
+
+
+    /*
+     * Since we use segs[CLK0].on as our own
+     * temporary variable (see "step" method), we
+     * need to initialize it here, to "phase one".
+     */
+    segs[CLK0].on = true;
 
 
 
-    std::cout << "setting pins..." << std::endl;
+    std::cout << "setting input pins..." << std::endl;
+    // set voltage supply and ground.
     setSeg(VCC, true);
     setSeg(VSS, false);
+    // TODO: there are two Vss pins; are they both connected to VSS segment?
 
-    setSeg(CLK0, true);
-    setSeg(IRQ, true);
-    setSeg(RES, false);
-    setSeg(NMI, true);
-    setSeg(RDY, true);
+    // don't do the set-overflow overriding functionality
     setSeg(SO, false);
 
+    setSeg(IRQ, true);//IRQ_BAR true: not interrupting
+    setSeg(NMI, true);//NMI_BAR true: not interrupting
+
+    setSeg(RDY, true);// ready to run (i.e., do not do single-stepping of instructions)
 
 
-    std::cout << "recalc all..." << std::endl;
+    /*
+     * RES_BAR pin is "resetting". Since it is a negated pin, pulling it low means "resetting"
+     * and pulling it high means "not resetting" or equivalently "running".
+     */
+
+    /*
+     * RES_BAR false: resetting now (i.e., in power-up now; pull high to begin normal operation)
+     * We want to hold RES_BAR low for a while, indicating power-up phase during which the
+     * CPU does not start up normal operations yet. The caller can set RES_BAR high (by calling
+     * reset) whenever he is ready to start the CPU running.
+     */
+    setSeg(RES, false);
+
+
+    std::cout << "initial full calculation..." << std::endl;
     recalcAll();
     dumpRegs();
     dumpSegs();
@@ -176,12 +196,23 @@ void CPU::tick() {
 }
 
 void CPU::step() {
-    const bool h = segs[CLK0].on;
+    /*
+     * We cheat a little bit here: instead of requiring the
+     * caller to toggle clock-zero pin, we let him just call
+     * "step" and *we* keep track of which phase we are in.
+     * To do this, we just use the CLK0 segment value (as
+     * a kind of temporary variable), and just toggle it in
+     * order to know which phase we are going into.
+     * 
+     * The real 6502, of course, does not do this.
+     */
+    const bool nextPhase = !segs[CLK0].on;
 
-    setSeg(CLK0, !h);
+    setSeg(CLK0, nextPhase);
     recalc(CLK0);
 
-    if (!h) {
+    // database read/write happens during Clock Phase 2 (only)
+    if (segs[CLK2OUT].on) {
         rw();
     }
 
