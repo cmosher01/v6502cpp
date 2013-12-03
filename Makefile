@@ -1,3 +1,5 @@
+CXXFLAGS=-g
+
 all: v6502
 
 v6502: v6502.o cpu.o
