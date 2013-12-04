@@ -490,6 +490,10 @@ void CPU::addToGroup(int iSeg, std::set<int>& riSeg) {
      * For every ON transistor this seg is connected to via a leg (source or
      * drain), add the seg that's connected to the OTHER leg of the transistor.
      * This is a RECURSIVE addition.
+     * 
+     * Also note that, upon system startup, all transistors are initialized
+     * to OFF, so at the time of the very first recalcAll call, *no* other
+     * segments will be added here.
      */
     const seg& s = segs[iSeg];
     for (std::vector<int>::const_iterator iTrn = s.c1c2s.begin(); iTrn != s.c1c2s.end(); ++iTrn) {
@@ -504,6 +508,11 @@ void CPU::addToGroup(int iSeg, std::set<int>& riSeg) {
     }
 }
 
+/*
+ * Upon system startup, this will return the "pullup" value of
+ * each segment (except for VCC and VSS (which will of course be
+ * ON and OFF respectively).
+ */
 bool CPU::getGroupValue(const std::set<int>& riSeg) {
     /* If group contains ground, it's OFF, */
     if (riSeg.find(VSS) != riSeg.end()) {
