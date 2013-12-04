@@ -59,6 +59,7 @@ private:
     void mWrite(unsigned short addr, unsigned char data);
     void rw();
     void step();
+    void initPins();
 
 public:
     CPU(AddressBus& addressBus);

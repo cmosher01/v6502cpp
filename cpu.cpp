@@ -151,22 +151,32 @@ void CPU::powerOn() {
 
 
     std::cout << "setting input pins..." << std::endl;
+    initPins();
+
+    std::cout << "initial full calculation..." << std::endl;
+    recalcAll();
+    dumpRegs();
+    dumpSegs();
+}
+
+void CPU::initPins() {
     // set voltage supply and ground.
     setSeg(VCC, true);
     setSeg(VSS, false);
-    // TODO: there are two Vss pins; are they both connected to VSS segment?
 
     // don't do the set-overflow overriding functionality
     setSeg(SO, false);
 
-    setSeg(IRQ, true);//IRQ_BAR true: not interrupting
-    setSeg(NMI, true);//NMI_BAR true: not interrupting
+    // ready to run (i.e., do not do single-stepping of instructions)
+    setSeg(RDY, true);
 
-    setSeg(RDY, true);// ready to run (i.e., do not do single-stepping of instructions)
+    // pull up to indicate that we are not interrupting now
+    setSeg(IRQ, true);
+    setSeg(NMI, true);
 
 
     /*
-     * RES_BAR pin is "resetting". Since it is a negated pin, pulling it low means "resetting"
+     * RES_BAR pin means "not resetting". Since it is a negated pin, pulling it low means "resetting"
      * and pulling it high means "not resetting" or equivalently "running".
      */
 
@@ -177,12 +187,6 @@ void CPU::powerOn() {
      * reset) whenever he is ready to start the CPU running.
      */
     setSeg(RES, false);
-
-
-    std::cout << "initial full calculation..." << std::endl;
-    recalcAll();
-    dumpRegs();
-    dumpSegs();
 }
 
 void CPU::reset() {
