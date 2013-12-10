@@ -1,13 +1,16 @@
 #ifndef CPU_H
 #define CPU_H
 
+#include <string>
 #include <vector>
 #include <set>
+#include <map>
 
 class AddressBus;
 
 class seg {
 public:
+    std::string id;
     bool pullup;
     bool pulldown;
     bool on;
@@ -25,6 +28,7 @@ public:
 
 class CPU {
 private:
+    std::map<std::string,int> map_seg_i;
     std::vector<seg> segs;
     std::vector<trn> trns;
     AddressBus& addressBus;

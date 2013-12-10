@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <utility>
 #include <iterator>
+#include <string>
 #include <vector>
 #include <set>
 #include <map>
@@ -51,78 +52,190 @@ static void pHexw(const unsigned short x) {
 
 
 
+/* power */
+#define VCC sg->isegVCC
+#define VSS sg->isegVSS
+
+/* inputs */
+#define CLK0 sg->isegCLK0
+#define IRQ sg->isegIRQ
+#define RES sg->isegRES
+#define NMI sg->isegNMI
+#define RDY sg->isegRDY
+#define SO sg->isegSO
+
+/* data bus (I/O) */
+#define DB0 sg->isegDB0
+#define DB1 sg->isegDB1
+#define DB3 sg->isegDB3
+#define DB2 sg->isegDB2
+#define DB5 sg->isegDB5
+#define DB4 sg->isegDB4
+#define DB7 sg->isegDB7
+#define DB6 sg->isegDB6
+
+/* address bus (output) */
+#define AB0 sg->isegAB0
+#define AB1 sg->isegAB1
+#define AB2 sg->isegAB2
+#define AB3 sg->isegAB3
+#define AB4 sg->isegAB4
+#define AB5 sg->isegAB5
+#define AB6 sg->isegAB6
+#define AB7 sg->isegAB7
+#define AB8 sg->isegAB8
+#define AB9 sg->isegAB9
+#define AB12 sg->isegAB12
+#define AB13 sg->isegAB13
+#define AB10 sg->isegAB10
+#define AB11 sg->isegAB11
+#define AB14 sg->isegAB14
+#define AB15 sg->isegAB15
+
+/* outputs */
+#define RW sg->isegRW
+#define SYNC sg->isegSYNC
+#define CLK1OUT sg->isegCLK1OUT
+#define CLK2OUT sg->isegCLK2OUT
+
+/* internal registers */
+#define A0 sg->isegA0
+#define A1 sg->isegA1
+#define A2 sg->isegA2
+#define A3 sg->isegA3
+#define A4 sg->isegA4
+#define A5 sg->isegA5
+#define A6 sg->isegA6
+#define A7 sg->isegA7
+
+#define X0 sg->isegX0
+#define X1 sg->isegX1
+#define X2 sg->isegX2
+#define X3 sg->isegX3
+#define X4 sg->isegX4
+#define X5 sg->isegX5
+#define X6 sg->isegX6
+#define X7 sg->isegX7
+
+#define Y0 sg->isegY0
+#define Y1 sg->isegY1
+#define Y2 sg->isegY2
+#define Y3 sg->isegY3
+#define Y4 sg->isegY4
+#define Y5 sg->isegY5
+#define Y6 sg->isegY6
+#define Y7 sg->isegY7
+
+#define PCL0 sg->isegPCL0
+#define PCL1 sg->isegPCL1
+#define PCL2 sg->isegPCL2
+#define PCL3 sg->isegPCL3
+#define PCL4 sg->isegPCL4
+#define PCL5 sg->isegPCL5
+#define PCL6 sg->isegPCL6
+#define PCL7 sg->isegPCL7
+
+#define PCH0 sg->isegPCH0
+#define PCH1 sg->isegPCH1
+#define PCH2 sg->isegPCH2
+#define PCH3 sg->isegPCH3
+#define PCH4 sg->isegPCH4
+#define PCH5 sg->isegPCH5
+#define PCH6 sg->isegPCH6
+#define PCH7 sg->isegPCH7
+
+#define P0 sg->isegP0
+#define P1 sg->isegP1
+#define P2 sg->isegP2
+#define P3 sg->isegP3
+#define P4 sg->isegP4
+#define P6 sg->isegP6
+#define P7 sg->isegP7
+
+#define S0 sg->isegS0
+#define S1 sg->isegS1
+#define S2 sg->isegS2
+#define S3 sg->isegS3
+#define S4 sg->isegS4
+#define S5 sg->isegS5
+#define S6 sg->isegS6
+#define S7 sg->isegS7
+
+
+
+static nodes* sg;
+
+static std::map<int,std::string> map_i_seg;
+
+static int get_i_seg(const std::string& seg, std::map<std::string,int>& map_seg_i) {
+    static int i_segin(0);
+    int i_seg = -1;
+    if (map_seg_i.find(seg) == map_seg_i.end()) {
+        i_seg = i_segin++;
+        map_seg_i[seg] = i_seg;
+        map_i_seg[i_seg] = seg;
+    } else {
+        i_seg = map_seg_i[seg];
+    }
+    return i_seg;
+}
+
 CPU::CPU(AddressBus& addressBus) :
 addressBus(addressBus) {
-    std::cout << "reading segsonly";
-    std::ifstream if_segs("segsonly");
-    if (!if_segs.is_open()) {
-        std::cerr << "error opening file: segs" << std::endl;
+    std::cout << "reading transistors";
+    std::ifstream if_trans("transistors");
+    if (!if_trans.is_open()) {
+        std::cerr << "error opening file: transistors" << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    int i_seg(0);
-    while (if_segs.good()) {
-        int i_segin(-1);
-        bool b_on(false);
-        if_segs >> i_segin >> b_on;
-        if (i_segin >= 0) {
-            if (i_segin != i_seg++) {
-                std::cerr << "error: mismatch in segsonly file near " << i_segin << std::endl;
-                exit(EXIT_FAILURE);
-            }
-            std::cout << ".";
-            seg s;
-            s.pullup = b_on;
-            s.pulldown = false;
-            s.on = false;
-            segs.push_back(s);
-        }
-    }
-    std::cout << std::endl << "read " << segs.size() << " segs" << std::endl;
-
-
-
-    std::cout << "reading trns";
-    std::ifstream if_trns("trns");
-    if (!if_trns.is_open()) {
-        std::cerr << "error opening file: trns" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    int i_trn(0);
-    while (if_trns.good()) {
+    std::string seg_c1, seg_gate, seg_c2;
+    if_trans >> seg_c1 >> seg_gate >> seg_c2;
+    while (if_trans.good()) {
         std::cout << ".";
-        int i_trnin(-1);
-        int i_gate, i_c1, i_c2;
-        if_trns >> i_trnin >> i_gate >> i_c1 >> i_c2;
-        if (i_trnin >= 0) {
-            if (i_trnin != i_trn++) {
-                std::cerr << "error: mismatch in trns file near " << i_trnin << std::endl;
-                exit(EXIT_FAILURE);
-            }
-            trn t;
-            t.gate = i_gate;
-            t.c1 = i_c1;
-            t.c2 = i_c2;
-            t.on = false;
-            trns.push_back(t);
-        }
-    }
-    std::cout << std::endl << "read " << trns.size() << " trns" << std::endl;
 
+        trn t;
+        t.on = false;
+        t.c1 = get_i_seg(seg_c1,map_seg_i);
+        t.gate = get_i_seg(seg_gate,map_seg_i);
+        t.c2 = get_i_seg(seg_c2,map_seg_i);
+        trns.push_back(t);
+
+        if_trans >> seg_c1 >> seg_gate >> seg_c2;
+    }
+    std::cout << std::endl << "read " << map_seg_i.size() << " segments, " << trns.size() << " transistors" << std::endl;
+
+    for (int i_seg = 0; i_seg < map_seg_i.size(); ++i_seg)
+    {
+        const std::string id_seg = map_i_seg[i_seg];
+
+        seg s;
+        s.id = id_seg;
+        s.pullup = id_seg[0] == '+';
+        s.pulldown = false;
+        s.on = false;
+        segs.push_back(s);
+    }
+
+
+
+    const int isegVSS = map_seg_i["-vss"];
+    const int isegVCC = map_seg_i["-vcc"];
     for (int i = 0; i != trns.size(); ++i) {
         trn& t = trns[i];
-        if (t.c1 == VSS) {
+        if (t.c1 == isegVSS) {
             t.c1 = t.c2;
-            t.c2 = VSS;
-        } else if (t.c1 == VCC) {
+            t.c2 = isegVSS;
+        } else if (t.c1 == isegVCC) {
             t.c1 = t.c2;
-            t.c2 = VCC;
+            t.c2 = isegVCC;
         }
         segs[t.gate].gates.push_back(i);
         segs[t.c1].c1c2s.push_back(i);
         segs[t.c2].c1c2s.push_back(i);
     }
+
+    sg = new nodes(map_seg_i);
 }
 
 CPU::~CPU() {

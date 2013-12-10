@@ -1,108 +1,121 @@
+#ifndef NODES_H
+#define NODES_H
+
+#include <string>
+#include <map>
+
+class nodes {
+public:
 /* power */
-#define VCC (657)
-#define VSS (558)
+    int isegVCC;
+    int isegVSS;
 
 /* inputs */
-#define CLK0 (1171)
-#define IRQ (103)
-#define RES (159)
-#define NMI (1297)
-#define RDY (89)
-#define SO (1672)
+    int isegCLK0;
+    int isegIRQ;
+    int isegRES;
+    int isegNMI;
+    int isegRDY;
+    int isegSO;
 
-/* data bus (I/O) */
-#define DB0 (1005)
-#define DB1 (82)
-#define DB3 (650)
-#define DB2 (945)
-#define DB5 (175)
-#define DB4 (1393)
-#define DB7 (1349)
-#define DB6 (1591)
+/* data bus; */
+    int isegDB0;
+    int isegDB1;
+    int isegDB3;
+    int isegDB2;
+    int isegDB5;
+    int isegDB4;
+    int isegDB7;
+    int isegDB6;
 
-/* address bus (output) */
-#define AB0 (268)
-#define AB1 (451)
-#define AB2 (1340)
-#define AB3 (211)
-#define AB4 (435)
-#define AB5 (736)
-#define AB6 (887)
-#define AB7 (1493)
-#define AB8 (230)
-#define AB9 (148)
-#define AB12 (1237)
-#define AB13 (349)
-#define AB10 (1443)
-#define AB11 (399)
-#define AB14 (672)
-#define AB15 (195)
+/* address bus; */
+    int isegAB0;
+    int isegAB1;
+    int isegAB2;
+    int isegAB3;
+    int isegAB4;
+    int isegAB5;
+    int isegAB6;
+    int isegAB7;
+    int isegAB8;
+    int isegAB9;
+    int isegAB12;
+    int isegAB13;
+    int isegAB10;
+    int isegAB11;
+    int isegAB14;
+    int isegAB15;
 
 /* outputs */
-#define RW (1156)
-#define SYNC (539)
-#define CLK1OUT (1163)
-#define CLK2OUT (421)
+    int isegRW;
+    int isegSYNC;
+    int isegCLK1OUT;
+    int isegCLK2OUT;
 
 /* internal registers */
-#define A0 (737)
-#define A1 (1234)
-#define A2 (978)
-#define A3 (162)
-#define A4 (727)
-#define A5 (858)
-#define A6 (1136)
-#define A7 (1653)
+    int isegA0;
+    int isegA1;
+    int isegA2;
+    int isegA3;
+    int isegA4;
+    int isegA5;
+    int isegA6;
+    int isegA7;
 
-#define X0 (1216)
-#define X1 (98)
-#define X2 (1)
-#define X3 (1648)
-#define X4 (85)
-#define X5 (589)
-#define X6 (448)
-#define X7 (777)
+    int isegX0;
+    int isegX1;
+    int isegX2;
+    int isegX3;
+    int isegX4;
+    int isegX5;
+    int isegX6;
+    int isegX7;
 
-#define Y0 (64)
-#define Y1 (1148)
-#define Y2 (573)
-#define Y3 (305)
-#define Y4 (989)
-#define Y5 (615)
-#define Y6 (115)
-#define Y7 (843)
+    int isegY0;
+    int isegY1;
+    int isegY2;
+    int isegY3;
+    int isegY4;
+    int isegY5;
+    int isegY6;
+    int isegY7;
 
-#define PCL0 (1139)
-#define PCL1 (1022)
-#define PCL2 (655)
-#define PCL3 (1359)
-#define PCL4 (900)
-#define PCL5 (622)
-#define PCL6 (377)
-#define PCL7 (1611)
+    int isegPCL0;
+    int isegPCL1;
+    int isegPCL2;
+    int isegPCL3;
+    int isegPCL4;
+    int isegPCL5;
+    int isegPCL6;
+    int isegPCL7;
 
-#define PCH0 (1670)
-#define PCH1 (292)
-#define PCH2 (502)
-#define PCH3 (584)
-#define PCH4 (948)
-#define PCH5 (49)
-#define PCH6 (1551)
-#define PCH7 (205)
+    int isegPCH0;
+    int isegPCH1;
+    int isegPCH2;
+    int isegPCH3;
+    int isegPCH4;
+    int isegPCH5;
+    int isegPCH6;
+    int isegPCH7;
 
-#define P0 (32)
-#define P1 (627)
-#define P2 (1553)
-#define P3 (348)
-#define P4 (1119)
-#define P6 (77)
-#define P7 (1370)
+    int isegP0;
+    int isegP1;
+    int isegP2;
+    int isegP3;
+    int isegP4;
+    int isegP6;
+    int isegP7;
 
-#define S0 (1403)
-#define S1 (183)
-#define S2 (81)
-#define S3 (1532)
-#define S4 (1702)
-#define S5 (1098)
-#define S6 (1212)
-#define S7 (1435)
+    int isegS0;
+    int isegS1;
+    int isegS2;
+    int isegS3;
+    int isegS4;
+    int isegS5;
+    int isegS6;
+    int isegS7;
+
+    nodes(std::map<std::string,int>& map_seg_i);
+};
+
+#endif
