@@ -4,7 +4,7 @@
 
 nodes::nodes(std::map<std::string,int>& map_seg_i) {
 /* power */
-    isegVCC = map_seg_i["-vcc"];
+    isegVCC = map_seg_i["+vcc"];
     isegVSS = map_seg_i["-vss"];
 
 /* inputs */
