@@ -52,118 +52,7 @@ static void pHexw(const unsigned short x) {
 
 
 
-/* power */
-#define VCC sg->isegVCC
-#define VSS sg->isegVSS
-
-/* inputs */
-#define CLK0 sg->isegCLK0
-#define IRQ sg->isegIRQ
-#define RES sg->isegRES
-#define NMI sg->isegNMI
-#define RDY sg->isegRDY
-#define SO sg->isegSO
-
-/* data bus (I/O) */
-#define DB0 sg->isegDB0
-#define DB1 sg->isegDB1
-#define DB3 sg->isegDB3
-#define DB2 sg->isegDB2
-#define DB5 sg->isegDB5
-#define DB4 sg->isegDB4
-#define DB7 sg->isegDB7
-#define DB6 sg->isegDB6
-
-/* address bus (output) */
-#define AB0 sg->isegAB0
-#define AB1 sg->isegAB1
-#define AB2 sg->isegAB2
-#define AB3 sg->isegAB3
-#define AB4 sg->isegAB4
-#define AB5 sg->isegAB5
-#define AB6 sg->isegAB6
-#define AB7 sg->isegAB7
-#define AB8 sg->isegAB8
-#define AB9 sg->isegAB9
-#define AB12 sg->isegAB12
-#define AB13 sg->isegAB13
-#define AB10 sg->isegAB10
-#define AB11 sg->isegAB11
-#define AB14 sg->isegAB14
-#define AB15 sg->isegAB15
-
-/* outputs */
-#define RW sg->isegRW
-#define SYNC sg->isegSYNC
-#define CLK1OUT sg->isegCLK1OUT
-#define CLK2OUT sg->isegCLK2OUT
-
-/* internal registers */
-#define A0 sg->isegA0
-#define A1 sg->isegA1
-#define A2 sg->isegA2
-#define A3 sg->isegA3
-#define A4 sg->isegA4
-#define A5 sg->isegA5
-#define A6 sg->isegA6
-#define A7 sg->isegA7
-
-#define X0 sg->isegX0
-#define X1 sg->isegX1
-#define X2 sg->isegX2
-#define X3 sg->isegX3
-#define X4 sg->isegX4
-#define X5 sg->isegX5
-#define X6 sg->isegX6
-#define X7 sg->isegX7
-
-#define Y0 sg->isegY0
-#define Y1 sg->isegY1
-#define Y2 sg->isegY2
-#define Y3 sg->isegY3
-#define Y4 sg->isegY4
-#define Y5 sg->isegY5
-#define Y6 sg->isegY6
-#define Y7 sg->isegY7
-
-#define PCL0 sg->isegPCL0
-#define PCL1 sg->isegPCL1
-#define PCL2 sg->isegPCL2
-#define PCL3 sg->isegPCL3
-#define PCL4 sg->isegPCL4
-#define PCL5 sg->isegPCL5
-#define PCL6 sg->isegPCL6
-#define PCL7 sg->isegPCL7
-
-#define PCH0 sg->isegPCH0
-#define PCH1 sg->isegPCH1
-#define PCH2 sg->isegPCH2
-#define PCH3 sg->isegPCH3
-#define PCH4 sg->isegPCH4
-#define PCH5 sg->isegPCH5
-#define PCH6 sg->isegPCH6
-#define PCH7 sg->isegPCH7
-
-#define P0 sg->isegP0
-#define P1 sg->isegP1
-#define P2 sg->isegP2
-#define P3 sg->isegP3
-#define P4 sg->isegP4
-#define P6 sg->isegP6
-#define P7 sg->isegP7
-
-#define S0 sg->isegS0
-#define S1 sg->isegS1
-#define S2 sg->isegS2
-#define S3 sg->isegS3
-#define S4 sg->isegS4
-#define S5 sg->isegS5
-#define S6 sg->isegS6
-#define S7 sg->isegS7
-
-
-
-static nodes* sg;
+static nodes* n;
 
 static std::map<int,std::string> map_i_seg;
 
@@ -218,24 +107,21 @@ addressBus(addressBus) {
     }
 
 
+    n = new nodes(map_seg_i);
 
-    const int isegVSS = map_seg_i["-vss"];
-    const int isegVCC = map_seg_i["-vcc"];
     for (int i = 0; i != trns.size(); ++i) {
         trn& t = trns[i];
-        if (t.c1 == isegVSS) {
+        if (t.c1 == n->VSS) {
             t.c1 = t.c2;
-            t.c2 = isegVSS;
-        } else if (t.c1 == isegVCC) {
+            t.c2 = n->VSS;
+        } else if (t.c1 == n->VCC) {
             t.c1 = t.c2;
-            t.c2 = isegVCC;
+            t.c2 = n->VCC;
         }
         segs[t.gate].gates.push_back(i);
         segs[t.c1].c1c2s.push_back(i);
         segs[t.c2].c1c2s.push_back(i);
     }
-
-    sg = new nodes(map_seg_i);
 }
 
 CPU::~CPU() {
@@ -259,7 +145,7 @@ void CPU::powerOn() {
      * temporary variable (see "step" method), we
      * need to initialize it here, to "phase one".
      */
-    segs[CLK0].on = true;
+    segs[n->CLK0].on = true;
 
 
 
@@ -274,18 +160,18 @@ void CPU::powerOn() {
 
 void CPU::initPins() {
     // set voltage supply and ground.
-    setSeg(VCC, true);
-    setSeg(VSS, false);
+    setSeg(n->VCC, true);
+    setSeg(n->VSS, false);
 
     // don't do the set-overflow overriding functionality
-    setSeg(SO, false);
+    setSeg(n->SO, false);
 
     // ready to run (i.e., do not do single-stepping of instructions)
-    setSeg(RDY, true);
+    setSeg(n->RDY, true);
 
     // pull up to indicate that we are not interrupting now
-    setSeg(IRQ, true);
-    setSeg(NMI, true);
+    setSeg(n->IRQ, true);
+    setSeg(n->NMI, true);
 
 
     /*
@@ -299,12 +185,12 @@ void CPU::initPins() {
      * CPU does not start up normal operations yet. The caller can set RES_BAR high (by calling
      * reset) whenever he is ready to start the CPU running.
      */
-    setSeg(RES, false);
+    setSeg(n->RES, false);
 }
 
 void CPU::reset() {
-    setSeg(RES, true);
-    recalc(RES);
+    setSeg(n->RES, true);
+    recalc(n->RES);
 }
 
 void CPU::tick() {
@@ -323,13 +209,13 @@ void CPU::step() {
      * 
      * The real 6502, of course, does not do this.
      */
-    const bool nextPhase = !segs[CLK0].on;
+    const bool nextPhase = !segs[n->CLK0].on;
 
-    setSeg(CLK0, nextPhase);
-    recalc(CLK0);
+    setSeg(n->CLK0, nextPhase);
+    recalc(n->CLK0);
 
     // database read/write happens during Clock Phase 2 (only)
-    if (segs[CLK2OUT].on) {
+    if (segs[n->CLK2OUT].on) {
         rw();
     }
 
@@ -355,13 +241,13 @@ void CPU::rw() {
 
 
 void CPU::readBus() {
-    if (segs[RW].on) {
+    if (segs[n->RW].on) {
         setDataSegs(mRead(rAddr()));
     }
 }
 
 void CPU::writeBus() {
-    if (!segs[RW].on) {
+    if (!segs[n->RW].on) {
         mWrite(rAddr(), rData());
     }
 }
@@ -369,32 +255,32 @@ void CPU::writeBus() {
 void CPU::setDataSegs(const unsigned char data) {
     unsigned char x = data;
 
-    setSeg(DB0, x & 1);
+    setSeg(n->DB0, x & 1);
     x >>= 1;
-    setSeg(DB1, x & 1);
+    setSeg(n->DB1, x & 1);
     x >>= 1;
-    setSeg(DB2, x & 1);
+    setSeg(n->DB2, x & 1);
     x >>= 1;
-    setSeg(DB3, x & 1);
+    setSeg(n->DB3, x & 1);
     x >>= 1;
-    setSeg(DB4, x & 1);
+    setSeg(n->DB4, x & 1);
     x >>= 1;
-    setSeg(DB5, x & 1);
+    setSeg(n->DB5, x & 1);
     x >>= 1;
-    setSeg(DB6, x & 1);
+    setSeg(n->DB6, x & 1);
     x >>= 1;
-    setSeg(DB7, x & 1);
+    setSeg(n->DB7, x & 1);
 }
 
 void CPU::addDataToRecalc(std::set<int>& s) {
-    s.insert(DB0);
-    s.insert(DB1);
-    s.insert(DB2);
-    s.insert(DB3);
-    s.insert(DB4);
-    s.insert(DB5);
-    s.insert(DB6);
-    s.insert(DB7);
+    s.insert(n->DB0);
+    s.insert(n->DB1);
+    s.insert(n->DB2);
+    s.insert(n->DB3);
+    s.insert(n->DB4);
+    s.insert(n->DB5);
+    s.insert(n->DB6);
+    s.insert(n->DB7);
 }
 
 unsigned char CPU::mRead(unsigned short addr) {
@@ -438,31 +324,31 @@ void CPU::setSeg(const int iSeg, const bool up) {
 
 
 unsigned char CPU::rData() {
-    return readByte(DB7, DB6, DB5, DB4, DB3, DB2, DB1, DB0);
+    return readByte(n->DB7, n->DB6, n->DB5, n->DB4, n->DB3, n->DB2, n->DB1, n->DB0);
 }
 
 unsigned short CPU::rAddr() {
-    return readWord(AB15, AB14, AB13, AB12, AB11, AB10, AB9, AB8, AB7, AB6, AB5, AB4, AB3, AB2, AB1, AB0);
+    return readWord(n->AB15, n->AB14, n->AB13, n->AB12, n->AB11, n->AB10, n->AB9, n->AB8, n->AB7, n->AB6, n->AB5, n->AB4, n->AB3, n->AB2, n->AB1, n->AB0);
 }
 
 unsigned char CPU::rA() {
-    return readByte(A7, A6, A5, A4, A3, A2, A1, A0);
+    return readByte(n->A7, n->A6, n->A5, n->A4, n->A3, n->A2, n->A1, n->A0);
 }
 
 unsigned char CPU::rX() {
-    return readByte(X7, X6, X5, X4, X3, X2, X1, X0);
+    return readByte(n->X7, n->X6, n->X5, n->X4, n->X3, n->X2, n->X1, n->X0);
 }
 
 unsigned char CPU::rY() {
-    return readByte(Y7, Y6, Y5, Y4, Y3, Y2, Y1, Y0);
+    return readByte(n->Y7, n->Y6, n->Y5, n->Y4, n->Y3, n->Y2, n->Y1, n->Y0);
 }
 
 unsigned char CPU::rS() {
-    return readByte(S7, S6, S5, S4, S3, S2, S1, S0);
+    return readByte(n->S7, n->S6, n->S5, n->S4, n->S3, n->S2, n->S1, n->S0);
 }
 
 unsigned short CPU::rPC() {
-    return readWord(PCH7, PCH6, PCH5, PCH4, PCH3, PCH2, PCH1, PCH0, PCL7, PCL6, PCL5, PCL4, PCL3, PCL2, PCL1, PCL0);
+    return readWord(n->PCH7, n->PCH6, n->PCH5, n->PCH4, n->PCH3, n->PCH2, n->PCH1, n->PCH0, n->PCL7, n->PCL6, n->PCL5, n->PCL4, n->PCL3, n->PCL2, n->PCL1, n->PCL0);
 }
 
 
@@ -555,7 +441,7 @@ void CPU::recalc(const std::set<int>& riSeg) {
  * to riSegChanged.
  */
 void CPU::recalcNode(const int iSeg, std::set<int>& riSegChanged) {
-    if (!(iSeg == VCC || iSeg == VSS)) {
+    if (!(iSeg == n->VCC || iSeg == n->VSS)) {
         std::set<int> riSegGroup;
         addToGroup(iSeg, riSegGroup);
         const bool groupOn = getGroupValue(riSegGroup);
@@ -581,7 +467,7 @@ void CPU::setTrans(trn& t, const bool on, std::set<int>& riSeg) {
 }
 
 void CPU::addRecalc(const int iSeg, std::set<int>& riSeg) {
-    if (!(iSeg == VCC || iSeg == VSS)) {
+    if (!(iSeg == n->VCC || iSeg == n->VSS)) {
         riSeg.insert(iSeg);
     }
 }
@@ -595,7 +481,7 @@ void CPU::addToGroup(int iSeg, std::set<int>& riSeg) {
     if (!ret.second) {
         return;
     }
-    if (iSeg == VCC || iSeg == VSS) {
+    if (iSeg == n->VCC || iSeg == n->VSS) {
         return;
     }
 
@@ -628,11 +514,11 @@ void CPU::addToGroup(int iSeg, std::set<int>& riSeg) {
  */
 bool CPU::getGroupValue(const std::set<int>& riSeg) {
     /* If group contains ground, it's OFF, */
-    if (riSeg.find(VSS) != riSeg.end()) {
+    if (riSeg.find(n->VSS) != riSeg.end()) {
         return false;
     }
     /* otherwise, if group contains voltage supply, it's ON. */
-    else if (riSeg.find(VCC) != riSeg.end()) {
+    else if (riSeg.find(n->VCC) != riSeg.end()) {
         return true;
     }
 
@@ -691,30 +577,30 @@ void CPU::dumpRegisters() {
     std::cout << " Y";
     pHex(rY());
     std::cout << " ";
-    std::cout << (segs[P7].on ? "N" : "n");
-    std::cout << (segs[P6].on ? "V" : "v");
+    std::cout << (segs[n->P7].on ? "N" : "n");
+    std::cout << (segs[n->P6].on ? "V" : "v");
     std::cout << ".";
-    std::cout << (segs[P4].on ? "B" : "b");
-    std::cout << (segs[P3].on ? "D" : "d");
-    std::cout << (segs[P2].on ? "I" : "i");
-    std::cout << (segs[P1].on ? "Z" : "z");
-    std::cout << (segs[P0].on ? "C" : "c");
+    std::cout << (segs[n->P4].on ? "B" : "b");
+    std::cout << (segs[n->P3].on ? "D" : "d");
+    std::cout << (segs[n->P2].on ? "I" : "i");
+    std::cout << (segs[n->P1].on ? "Z" : "z");
+    std::cout << (segs[n->P0].on ? "C" : "c");
     std::cout << " S";
     pHex(rS());
     std::cout << " PC";
     pHexw(rPC());
-    if (segs[CLK1OUT].on) {
+    if (segs[n->CLK1OUT].on) {
         std::cout << "  PH1  ";
     }
-    if (segs[CLK2OUT].on) {
+    if (segs[n->CLK2OUT].on) {
         std::cout << "  PH2";
-        if (segs[RW].on) {
+        if (segs[n->RW].on) {
             std::cout << " R";
         } else {
             std::cout << " W";
         }
     }
-    if (!(segs[CLK1OUT].on || segs[CLK2OUT].on)) {
+    if (!(segs[n->CLK1OUT].on || segs[n->CLK2OUT].on)) {
         std::cout << "  PH-  ";
     }
     std::cout << " DB";
