@@ -22,6 +22,9 @@ public:
     bool pullup;
     bool pulldown;
     bool on;
+
+    Segment(std::string& id) : id(id) {
+    }
 };
 
 class Trans {
