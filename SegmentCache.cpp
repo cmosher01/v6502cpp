@@ -6,9 +6,9 @@
  */
 
 #include "SegmentCache.h"
+#include <memory>
 #include <string>
 #include <map>
-#include <memory>
 #include <algorithm>
 
 Segment* SegmentCache::getOrAdd(std::string& id) {

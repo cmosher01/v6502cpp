@@ -12,6 +12,8 @@
 #include "addressbus.h"
 #include "cpu.h"
 
+#include "TransNetwork.h"
+
 //memory[0xFF] = 0x68;  // PLA
 
 //memory[0xFF] = 0xFF;
@@ -36,6 +38,15 @@
 //}
 
 int main(int argc, char *argv[]) {
+    std::ifstream if_trans("transistors");
+    if (!if_trans.is_open()) {
+        std::cerr << "error opening file: transistors" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    TransNetwork n(if_trans);
+}
+
+int xxxmain(int argc, char *argv[]) {
     AddressBus mem;
     CPU cpu(mem);
 

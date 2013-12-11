@@ -10,8 +10,10 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 class Trans;
+class SegmentCache;
 
 class Segment {
 public:
@@ -28,12 +30,23 @@ public:
 };
 
 class Trans {
-public:
+private:
     Segment* c1;
     Segment* gate;
     Segment* c2;
 
     bool on;
+
+public:
+    Trans(Segment* c1, Segment* gate, Segment* c2) : on(false), c1(c1), gate(gate), c2(c2) {
+    }
+
+    virtual ~Trans() {
+    }
+
+private:
+    Trans(const Trans&);
+    Trans& operator=(const Trans&);
 };
 
 #endif	/* TRANS_H */
