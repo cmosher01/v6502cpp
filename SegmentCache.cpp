@@ -9,7 +9,6 @@
 #include <memory>
 #include <string>
 #include <map>
-#include <algorithm>
 
 Segment* SegmentCache::getOrAdd(std::string& id) {
     if (this->cache.find(id) == this->cache.end()) {

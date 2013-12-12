@@ -8,9 +8,15 @@
 #ifndef TRANSNETWORK_H
 #define	TRANSNETWORK_H
 
+#include "trans.h"
+#include "SegmentCache.h"
 #include <istream>
 
 class TransNetwork {
+private:
+    SegmentCache segs;
+    std::set<std::shared_ptr<Trans>> transes;
+
 public:
     TransNetwork(std::istream& readFromHere);
     virtual ~TransNetwork();

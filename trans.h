@@ -9,23 +9,21 @@
 #define	TRANS_H
 
 #include <string>
-#include <vector>
-#include <iostream>
+#include <set>
 
 class Trans;
-class SegmentCache;
 
 class Segment {
 public:
     std::string id;
-    std::vector<Trans*> gates;
-    std::vector<Trans*> c1c2s;
+    std::set<Trans*> gates;
+    std::set<Trans*> c1c2s;
 
     bool pullup;
     bool pulldown;
     bool on;
 
-    Segment(std::string& id) : id(id) {
+    Segment(std::string& id) : id(id), on(false), pulldown(false), pullup(id[0] == '+') {
     }
 };
 
@@ -39,6 +37,9 @@ private:
 
 public:
     Trans(Segment* c1, Segment* gate, Segment* c2) : on(false), c1(c1), gate(gate), c2(c2) {
+        c1->c1c2s.insert(this);
+        gate->gates.insert(this);
+        c2->c1c2s.insert(this);
     }
 
     virtual ~Trans() {

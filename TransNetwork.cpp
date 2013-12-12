@@ -7,21 +7,16 @@
 
 #include "TransNetwork.h"
 #include "trans.h"
-#include "SegmentCache.h"
+#include <memory>
 #include <iostream>
 
-TransNetwork::TransNetwork(std::istream& readFromHere) {
-    SegmentCache segs;
-
+TransNetwork::TransNetwork(std::istream& in) {
     std::string c1, gate, c2;
-    readFromHere >> c1 >> gate >> c2;
-    while (readFromHere.good()) {
-        Trans trans(segs.getOrAdd(c1), segs.getOrAdd(gate), segs.getOrAdd(c2));
-        std::cout << trans;
-
-        readFromHere >> c1 >> gate >> c2;
+    in >> c1 >> gate >> c2;
+    while (in.good()) {
+        this->transes.insert(std::make_shared<Trans>(this->segs.getOrAdd(c1), this->segs.getOrAdd(gate), this->segs.getOrAdd(c2)));
+        in >> c1 >> gate >> c2;
     }
-    std::cout << std::endl << "done" << std::endl;
 }
 
 TransNetwork::~TransNetwork() {

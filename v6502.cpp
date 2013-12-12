@@ -37,7 +37,7 @@
 //    }
 //}
 
-int main(int argc, char *argv[]) {
+int xxxmain(int argc, char *argv[]) {
     std::ifstream if_trans("transistors");
     if (!if_trans.is_open()) {
         std::cerr << "error opening file: transistors" << std::endl;
@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
     TransNetwork n(if_trans);
 }
 
-int xxxmain(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
     AddressBus mem;
     CPU cpu(mem);
 

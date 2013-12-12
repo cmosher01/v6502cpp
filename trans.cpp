@@ -6,5 +6,3 @@
  */
 
 #include "trans.h"
-#include "SegmentCache.h"
-#include <istream>

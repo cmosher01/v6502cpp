@@ -110,13 +110,13 @@ addressBus(addressBus) {
 
     for (int i = 0; i != trns.size(); ++i) {
         trn& t = trns[i];
-        if (t.c1 == n->VSS) {
-            t.c1 = t.c2;
-            t.c2 = n->VSS;
-        } else if (t.c1 == n->VCC) {
-            t.c1 = t.c2;
-            t.c2 = n->VCC;
-        }
+//        if (t.c1 == n->VSS) {
+//            t.c1 = t.c2;
+//            t.c2 = n->VSS;
+//        } else if (t.c1 == n->VCC) {
+//            t.c1 = t.c2;
+//            t.c2 = n->VCC;
+//        }
         segs[t.gate].gates.push_back(i);
         segs[t.c1].c1c2s.push_back(i);
         segs[t.c2].c1c2s.push_back(i);
