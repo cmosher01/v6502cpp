@@ -13,7 +13,7 @@ nodes::nodes(std::map<std::string,int>& map_seg_i) {
     RES = map_seg_i["-res"];
     NMI = map_seg_i["-nmi"];
     RDY = map_seg_i["+rdy"];
-    SO = map_seg_i["+s0"];
+    SO = map_seg_i["+so"];
 
 /* data bus (I/O) */
     DB0 = map_seg_i["-db0"];

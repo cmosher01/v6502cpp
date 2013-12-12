@@ -14,6 +14,7 @@
 
 #include "nodes.h"
 #include "addressbus.h"
+#include "SegmentCache.h"
 
 
 
@@ -210,8 +211,7 @@ void CPU::step() {
      */
     const bool nextPhase = !segs[n->CLK0].on;
 
-    setSeg(n->CLK0, nextPhase);
-    recalc(n->CLK0);
+    clock(nextPhase);
 
     // database read/write happens during Clock Phase 2 (only)
     if (segs[n->CLK2OUT].on) {
@@ -220,6 +220,11 @@ void CPU::step() {
 
     dumpRegs();
     dumpSegs();
+}
+
+void CPU::clock(bool phase) {
+    setSeg(n->CLK0, phase);
+    recalc(n->CLK0);
 }
 
 void CPU::rw() {

@@ -62,13 +62,14 @@ private:
     unsigned char mRead(unsigned short addr);
     void mWrite(unsigned short addr, unsigned char data);
     void rw();
-    void step();
     void initPins();
 
 public:
     CPU(AddressBus& addressBus);
     ~CPU();
 
+    void step(); /* convenience method */
+    void clock(bool phase);
     void powerOn();
     void reset();
     void tick();

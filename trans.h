@@ -23,8 +23,16 @@ public:
     bool pulldown;
     bool on;
 
-    Segment(std::string& id) : id(id), on(false), pulldown(false), pullup(id[0] == '+') {
+    Segment(const std::string& id) : id(id), on(false), pulldown(false), pullup(id[0] == '+') {
     }
+
+    void set(bool up) {
+        this->pullup = up;
+        this->pulldown = !up;
+    }
+
+    static unsigned char asByte(Segment* b7, Segment* b6, Segment* b5, Segment* b4, Segment* b3, Segment* b2, Segment* b1, Segment* b0);
+    static unsigned short asWord(Segment* b15, Segment* b14, Segment* b13, Segment* b12, Segment* b11, Segment* b10, Segment* b9, Segment* b8, Segment* b7, Segment* b6, Segment* b5, Segment* b4, Segment* b3, Segment* b2, Segment* b1, Segment* b0);
 };
 
 class Trans {
@@ -36,6 +44,7 @@ private:
     bool on;
 
 public:
+
     Trans(Segment* c1, Segment* gate, Segment* c2) : on(false), c1(c1), gate(gate), c2(c2) {
         c1->c1c2s.insert(this);
         gate->gates.insert(this);

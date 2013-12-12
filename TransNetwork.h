@@ -13,7 +13,7 @@
 #include <istream>
 
 class TransNetwork {
-private:
+public:
     SegmentCache segs;
     std::set<std::shared_ptr<Trans>> transes;
 

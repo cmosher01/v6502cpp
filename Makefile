@@ -2,7 +2,7 @@ CXXFLAGS=-g -std=c++11
 
 all: v6502
 
-v6502: v6502.o cpu.o nodes.o trans.o SegmentCache.o TransNetwork.o
+v6502: v6502.o cpu.o nodes.o trans.o SegmentCache.o TransNetwork.o Trace.o
 	g++ $^ -o $@
 
 v6502.o: v6502.cpp cpu.h addressbus.h TransNetwork.h 
@@ -16,6 +16,8 @@ trans.o: trans.cpp trans.h
 SegmentCache.o: SegmentCache.cpp SegmentCache.h
 
 TransNetwork.o: TransNetwork.cpp TransNetwork.h trans.h
+
+Trace.o: Trace.cpp Trace.h SegmentCache.h
 
 clean:
 	-rm *.o
