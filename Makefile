@@ -14,6 +14,7 @@ DEPS = $(SRCS:.cpp=.d)
 all: v6502
 
 v6502: $(OBJS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJS) -o $(TARGET)
 
 -include $(DEPS)
 
