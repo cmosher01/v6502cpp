@@ -49,11 +49,6 @@ int main(int argc, char *argv[]) {
     AddressBus mem;
     Trace trace(tn.segs);
     Cpu6502 cpu(tn,mem,trace);
-}
-
-int xxxmain(int argc, char *argv[]) {
-    AddressBus mem;
-    CPU cpu(mem);
 
 
 

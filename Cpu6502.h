@@ -24,14 +24,15 @@ public:
     virtual ~Cpu6502() {
     }
 
+    void powerOn();
+    void tick();
+    void reset();
+
 private:
     Cpu6502(const Cpu6502&);
     Cpu6502& operator=(const Cpu6502&);
 
-    void powerOn();
     void initPins();
-    void reset();
-    void tick();
     void step();
     void clock(bool phase);
     void rw();
