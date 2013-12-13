@@ -1,25 +1,24 @@
 CXXFLAGS=-g -std=c++11
 
+SRCS = v6502.cpp cpu.cpp nodes.cpp trans.cpp SegmentCache.cpp TransNetwork.cpp Trace.cpp Circuit.cpp StateCalculator.cpp Cpu6502.cpp
+OBJS = $(SRCS:.cpp=.o)
+DEPS = $(SRCS:.cpp=.d)
+
+.cpp.o:
+	$(COMPILE.cpp) -MMD $(OUTPUT_OPTION) $<
+
+.PHONY: all clean
+
+
+
 all: v6502
 
-v6502: v6502.o cpu.o nodes.o trans.o SegmentCache.o TransNetwork.o Trace.o
-	g++ $^ -o $@
+v6502: $(OBJS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJS) -o $(TARGET)
 
-v6502.o: v6502.cpp cpu.h addressbus.h TransNetwork.h 
+-include $(DEPS)
 
-cpu.o: cpu.cpp cpu.h addressbus.h nodes.h
 
-nodes.o: nodes.cpp nodes.h
-
-trans.o: trans.cpp trans.h
-
-SegmentCache.o: SegmentCache.cpp SegmentCache.h
-
-TransNetwork.o: TransNetwork.cpp TransNetwork.h trans.h
-
-Trace.o: Trace.cpp Trace.h SegmentCache.h
 
 clean:
-	-rm *.o
-	-rm v6502
-	-rm v6502.exe
+	-rm -f v6502 v6502.exe $(OBJS) $(DEPS)

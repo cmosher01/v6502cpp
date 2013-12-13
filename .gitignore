@@ -1,4 +1,5 @@
 *.o
+*.d
 v6502
 v6502.exe
 /nbproject/

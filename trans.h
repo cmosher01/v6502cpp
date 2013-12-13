@@ -36,7 +36,7 @@ public:
 };
 
 class Trans {
-private:
+public:
     Segment* c1;
     Segment* gate;
     Segment* c2;

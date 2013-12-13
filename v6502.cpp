@@ -12,6 +12,7 @@
 #include "addressbus.h"
 #include "cpu.h"
 
+#include "Cpu6502.h"
 #include "TransNetwork.h"
 
 //memory[0xFF] = 0x68;  // PLA
@@ -44,8 +45,8 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     TransNetwork tn(if_trans);
-    SegmentCache::Common* n = tn.segs.c;
-    n->CLK0->on = true;
+
+    Cpu6502 cpu(tn);
 }
 
 int xxxmain(int argc, char *argv[]) {
