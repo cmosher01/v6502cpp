@@ -14,6 +14,7 @@
 
 #include "Cpu6502.h"
 #include "TransNetwork.h"
+#include "Trace.h"
 
 //memory[0xFF] = 0x68;  // PLA
 
@@ -45,8 +46,9 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     TransNetwork tn(if_trans);
-
-    Cpu6502 cpu(tn);
+    AddressBus mem;
+    Trace trace(tn.segs);
+    Cpu6502 cpu(tn,mem,trace);
 }
 
 int xxxmain(int argc, char *argv[]) {

@@ -8,12 +8,13 @@
 #include "Cpu6502.h"
 #include "TransNetwork.h"
 #include "trans.h"
-#include "AddressBus.h"
+#include "addressbus.h"
 #include "Trace.h"
+#include "cpu.h"
 #include <iostream>
 
 
-
+#include "StateCalculator.h"
 
 
 
@@ -51,7 +52,7 @@ void Cpu6502::powerOn() {
      * temporary variable (see "step" method), we
      * need to initialize it here, to "phase one".
      */
-    segs[n->CLK0].on = true;
+    n->CLK0->on = true;
 
 
 
@@ -59,9 +60,21 @@ void Cpu6502::powerOn() {
     initPins();
 
     std::cout << "initial full calculation..." << std::endl;
-    recalcAll();
+    recalc(segs.all());
     dumpRegs();
     dumpSegs();
+}
+
+void Cpu6502::setSeg(Segment* s, bool on) {
+    s->set(on);
+}
+
+void Cpu6502::recalc(Segment* s) {
+    StateCalculator::recalc(s,n->VSS,n->VCC);
+}
+
+void Cpu6502::recalc(std::set<Segment*> s) {
+    StateCalculator::recalc(s,n->VSS,n->VCC);
 }
 
 void Cpu6502::initPins() {
@@ -115,7 +128,7 @@ void Cpu6502::step() {
      * 
      * The real 6502, of course, does not do this.
      */
-    const bool nextPhase = !segs[n->CLK0].on;
+    const bool nextPhase = !n->CLK0->on;
 
     clock(nextPhase);
     rw();
@@ -131,11 +144,11 @@ void Cpu6502::clock(bool phase) {
 
 void Cpu6502::rw() {
     // database read/write happens during Clock Phase 2 (only)
-    if (segs[n->CLK2OUT].on) {
+    if (n->CLK2OUT->on) {
         readBus();
 
-        std::set<int> s;
-        addDataToRecalc(s);
+        std::set<Segment*> s;
+        segs.addDataToRecalc(s);
         recalc(s);
 
         writeBus();
@@ -187,18 +200,4 @@ void Cpu6502::write(unsigned short addr, unsigned char data) {
     pHexw(addr);
     std::cout << std::endl;
 #endif
-}
-
-
-
-
-
-
-
-void Cpu6502::recalcAll() {
-    std::set<int> riSeg;
-    for (int iSeg = 0; iSeg < segs.size(); ++iSeg) {
-        addRecalc(iSeg,riSeg);
-    }
-    recalc(riSeg);
 }

@@ -8,6 +8,9 @@
 #ifndef CPU6502_H
 #define	CPU6502_H
 
+#include "TransNetwork.h"
+
+
 class TransNetwork;
 class AddressBus;
 class Trace;
@@ -15,7 +18,7 @@ class Trace;
 class Cpu6502 {
 public:
 
-    Cpu6502(TransNetwork& transNetwork, AddressBus& addressBus, Trace& trace) : transNetwork(transNetwork), addressBus(addressBus), trace(trace) {
+    Cpu6502(TransNetwork& transNetwork, AddressBus& addressBus, Trace& trace) : transNetwork(transNetwork), addressBus(addressBus), trace(trace), segs(transNetwork.segs), n(segs.c) {
     }
 
     virtual ~Cpu6502() {
@@ -37,10 +40,17 @@ private:
     unsigned char read(unsigned short addr);
     void write(unsigned short addr, unsigned char data);
 
+    static void setSeg(Segment* s, bool on);
+    void recalc(Segment* s);
+    void recalc(std::set<Segment*> s);
+
     TransNetwork& transNetwork;
     AddressBus& addressBus;
 
     Trace& trace;
+
+    SegmentCache& segs;
+    SegmentCache::Common* n;
 };
 
 #endif	/* CPU6502_H */

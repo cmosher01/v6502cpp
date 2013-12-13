@@ -26,6 +26,14 @@ public:
     Segment* getOrAdd(const std::string& id);
     Segment* get(const std::string& id) const;
 
+    std::set<Segment*> all() {
+        std::set<Segment*> s;
+        for (std::map<const std::string, std::shared_ptr<Segment > >::const_iterator i = cache.begin(); i != cache.end(); ++i) {
+            s.insert(i->second.get());
+        }
+        return s;
+    }
+
     class Common {
     public:
         Segment* VSS;
