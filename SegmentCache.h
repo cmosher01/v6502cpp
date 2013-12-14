@@ -28,8 +28,8 @@ public:
 
     std::set<Segment*> all() {
         std::set<Segment*> s;
-        for (std::map<const std::string, std::shared_ptr<Segment > >::const_iterator i = cache.begin(); i != cache.end(); ++i) {
-            s.insert(i->second.get());
+        for (auto i : cache) {
+            s.insert(i.second.get());
         }
         return s;
     }

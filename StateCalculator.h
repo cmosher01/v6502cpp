@@ -32,6 +32,7 @@ private:
     StateCalculator& operator=(const StateCalculator&);
 
     void recalcNode(Segment* seg);
+    void setSeg(Segment* s, const bool on);
     void setTrans(Trans* t, const bool on);
     void addRecalc(Segment* seg);
 

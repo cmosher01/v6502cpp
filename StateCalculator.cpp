@@ -25,7 +25,7 @@ StateCalculator::StateCalculator(Segment* VSS, Segment* VCC) : VSS(VSS), VCC(VCC
 void StateCalculator::recalc(Segment* seg, Segment* VSS, Segment* VCC) {
     std::set<Segment*> rSeg;
     rSeg.insert(seg);
-    recalc(rSeg,VSS,VCC);
+    recalc(rSeg, VSS, VCC);
 }
 
 /*
@@ -36,20 +36,20 @@ void StateCalculator::recalc(Segment* seg, Segment* VSS, Segment* VCC) {
  */
 #define SANE (100)
 
-void StateCalculator::recalc(const std::set<Segment*>& rSeg, Segment* VSS, Segment* VCC) {
+void StateCalculator::recalc(const std::set<Segment*>& segs, Segment* VSS, Segment* VCC) {
     int sanity(0);
 
-    std::set<Segment*> riSegRecalc(rSeg);
-    while (!riSegRecalc.empty()) {
+    std::set<Segment*> changed(segs);
+    while (!changed.empty()) {
         if (++sanity >= SANE) {
             throw "ERROR: reached maximum iteration limit while recalculating CPU state";
         }
 
         StateCalculator c(VSS, VCC);
-        for (std::set<Segment*>::const_iterator is = riSegRecalc.begin(); is != riSegRecalc.end(); ++is) {
-            c.recalcNode(*is);
+        for (auto s : changed) {
+            c.recalcNode(s);
         }
-        riSegRecalc = c.getChanged();
+        changed = c.getChanged();
     }
 }
 
@@ -64,16 +64,17 @@ void StateCalculator::recalc(const std::set<Segment*>& rSeg, Segment* VSS, Segme
 void StateCalculator::recalcNode(Segment* seg) {
     if (!(seg == this->VSS || seg == this->VCC)) {
         Circuit c(seg, this->VSS, this->VCC);
+        for (auto s : c) {
+            setSeg(s, c.getValue());
+        }
+    }
+}
 
-        for (std::set<Segment*>::iterator is = c.begin(); is != c.end(); ++is) {
-            Segment * s(*is);
-            if (s->on != c.getValue()) {
-                s->on = c.getValue();
-                for (std::set<Trans*>::iterator it = s->gates.begin(); it != s->gates.end(); ++it) {
-                    Trans * t(*it);
-                    setTrans(t, c.getValue());
-                }
-            }
+void StateCalculator::setSeg(Segment* s, const bool on) {
+    if (s->on != on) {
+        s->on = on;
+        for (auto t : s->gates) {
+            setTrans(t, on);
         }
     }
 }
