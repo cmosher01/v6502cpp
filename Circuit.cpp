@@ -17,7 +17,7 @@ Circuit::Circuit(Segment* extendFrom, Segment* VSS, Segment* VCC) : VSS(VSS), VC
  * This happens recursively, but we don't recurse past ground or voltage supply.
  */
 void Circuit::extend(Segment* extendFrom) {
-    const std::pair < std::set<Segment*>::iterator, bool> ret = this->segs.insert(extendFrom);
+    auto ret = this->segs.insert(extendFrom);
     if (!ret.second) {
         return;
     }
@@ -34,8 +34,7 @@ void Circuit::extend(Segment* extendFrom) {
      * to OFF, so at the time of the very first recalcAll call, *no* other
      * segments will be added here.
      */
-    for (std::set<Trans*>::const_iterator iTrn = extendFrom->c1c2s.begin(); iTrn != extendFrom->c1c2s.end(); ++iTrn) {
-        const Trans * t(*iTrn);
+    for (auto t : extendFrom->c1c2s) {
         if (t->on) {
             if (t->c1 == extendFrom) {
                 extend(t->c2);
@@ -62,8 +61,7 @@ bool Circuit::getValue() {
 
 
 
-    for (std::set<Segment*>::const_iterator iSeg = this->segs.begin(); iSeg != this->segs.end(); ++iSeg) {
-        Segment * s(*iSeg);
+    for (auto s : this->segs) {
         if (s->pullup) {
             return true;
         }

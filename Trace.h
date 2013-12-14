@@ -15,12 +15,12 @@ public:
     Trace(const SegmentCache& s) : s(s) {}
     virtual ~Trace() {}
 
-    void dumpSegments();
-    void dumpRegisters();
+    void dumpSegments() const;
+    void dumpRegisters() const;
 
 private:
-    Trace(const Trace&);
-    Trace& operator=(const Trace&);
+    Trace(const Trace&) = delete;
+    Trace& operator=(const Trace&) = delete;
 
     const SegmentCache& s;
 };

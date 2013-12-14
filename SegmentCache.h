@@ -28,7 +28,7 @@ public:
 
     std::set<Segment*> all() {
         std::set<Segment*> s;
-        for (auto i : cache) {
+        for (auto i : this->cache) {
             s.insert(i.second.get());
         }
         return s;

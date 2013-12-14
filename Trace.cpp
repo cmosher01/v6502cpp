@@ -10,15 +10,19 @@
 #include <iostream>
 #include <iomanip>
 
-static void pHex(const unsigned char x) {
-    std::cout << std::setw(2) << std::setfill('0') << std::hex << (unsigned long) x << std::dec;
+static void pHex(const unsigned long x, const int width) {
+    std::cout << std::setw(width) << std::setfill('0') << std::hex << x << std::dec;
+}
+
+static void pHexb(const unsigned char x) {
+    pHex(x,2);
 }
 
 static void pHexw(const unsigned short x) {
-    std::cout << std::setw(4) << std::setfill('0') << std::hex << (unsigned long) x << std::dec;
+    pHex(x,4);
 }
 
-void Trace::dumpSegments() {
+void Trace::dumpSegments() const {
 //    for (int i = 0; i < segs.size(); ++i) {
 //        seg& s = segs[i];
 //        if (s.pullup) {
@@ -37,13 +41,13 @@ void Trace::dumpSegments() {
 //    std::cout << std::endl;
 }
 
-void Trace::dumpRegisters() {
+void Trace::dumpRegisters() const {
     std::cout << "A";
-    pHex(s.rA());
+    pHexb(s.rA());
     std::cout << " X";
-    pHex(s.rX());
+    pHexb(s.rX());
     std::cout << " Y";
-    pHex(s.rY());
+    pHexb(s.rY());
     std::cout << " ";
     std::cout << (s.c->P7->on ? "N" : "n");
     std::cout << (s.c->P6->on ? "V" : "v");
@@ -54,7 +58,7 @@ void Trace::dumpRegisters() {
     std::cout << (s.c->P1->on ? "Z" : "z");
     std::cout << (s.c->P0->on ? "C" : "c");
     std::cout << " S";
-    pHex(s.rS());
+    pHexb(s.rS());
     std::cout << " PC";
     pHexw(s.rPC());
     if (s.c->CLK1OUT->on) {
@@ -72,7 +76,7 @@ void Trace::dumpRegisters() {
         std::cout << "  PH-  ";
     }
     std::cout << " DB";
-    pHex(s.rData());
+    pHexb(s.rData());
     std::cout << " AB";
     pHexw(s.rAddr());
     std::cout << std::endl;
