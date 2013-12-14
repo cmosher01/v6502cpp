@@ -8,7 +8,6 @@
 #include "StateCalculator.h"
 #include "Circuit.h"
 #include "trans.h"
-#include "cpu.h"
 #include <set>
 
 StateCalculator::StateCalculator(Segment* VSS, Segment* VCC) : VSS(VSS), VCC(VCC) {

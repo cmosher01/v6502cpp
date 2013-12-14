@@ -1,20 +1,12 @@
-#include <algorithm>
-#include <utility>
-#include <iterator>
-#include <vector>
-#include <set>
-#include <map>
-#include <stdlib.h>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-
 #include "addressbus.h"
-#include "cpu.h"
-
 #include "Cpu6502.h"
 #include "TransNetwork.h"
 #include "Trace.h"
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+
+
 
 //memory[0xFF] = 0x68;  // PLA
 

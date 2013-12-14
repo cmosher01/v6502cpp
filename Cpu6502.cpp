@@ -10,7 +10,6 @@
 #include "trans.h"
 #include "addressbus.h"
 #include "Trace.h"
-#include "cpu.h"
 #include <iostream>
 
 
