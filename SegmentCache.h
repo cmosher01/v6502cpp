@@ -17,10 +17,11 @@
 class SegmentCache {
 public:
 
-    SegmentCache() {
+    SegmentCache() : c(nullptr) {
     }
 
     virtual ~SegmentCache() {
+        delete this->c;
     }
 
     Segment* getOrAdd(const std::string& id);
@@ -162,11 +163,11 @@ public:
         P0(P0), P1(P1), P2(P2), P3(P3), P4(P4), /* no P5 */ P6(P6), P7(P7),
         S0(S0), S1(S1), S2(S2), S3(S3), S4(S4), S5(S5), S6(S6), S7(S7) {
         }
-        ~Common();
+        ~Common() {}
 
     private:
-        Common(const Common&);
-        Common& operator=(const Common&);
+        Common(const Common&) = delete;
+        Common& operator=(const Common&) = delete;
     };
 
     void initCommon();
@@ -186,8 +187,8 @@ public:
 private:
     std::map<const std::string, std::shared_ptr<Segment > > cache;
 
-    SegmentCache(const SegmentCache&);
-    SegmentCache& operator=(const SegmentCache&);
+    SegmentCache(const SegmentCache&) = delete;
+    SegmentCache& operator=(const SegmentCache&) = delete;
 };
 
 #endif	/* SEGMENTCACHE_H */

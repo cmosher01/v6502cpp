@@ -19,9 +19,9 @@ public:
     std::set<Trans*> gates;
     std::set<Trans*> c1c2s;
 
-    bool pullup;
-    bool pulldown;
     bool on;
+    bool pulldown;
+    bool pullup;
 
     bool vss;
     bool vcc;
@@ -48,7 +48,7 @@ public:
 
 public:
 
-    Trans(Segment* c1, Segment* gate, Segment* c2) : on(false), c1(c1), gate(gate), c2(c2) {
+    Trans(Segment* c1, Segment* gate, Segment* c2) : c1(c1), gate(gate), c2(c2), on(false) {
         c1->c1c2s.insert(this);
         gate->gates.insert(this);
         c2->c1c2s.insert(this);
