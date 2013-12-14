@@ -8,7 +8,7 @@
 #include "Circuit.h"
 #include "trans.h"
 
-Circuit::Circuit(Segment* extendFrom, Segment* VSS, Segment* VCC) : VSS(VSS), VCC(VCC) {
+Circuit::Circuit(Segment* extendFrom) {
     extend(extendFrom);
 }
 
@@ -21,7 +21,7 @@ void Circuit::extend(Segment* extendFrom) {
     if (!ret.second) {
         return;
     }
-    if (extendFrom == this->VCC || extendFrom == this->VSS) {
+    if (extendFrom->vss || extendFrom->vcc) {
         return;
     }
 
@@ -52,15 +52,18 @@ void Circuit::extend(Segment* extendFrom) {
  */
 bool Circuit::getValue() {
     /* If group contains ground, it's OFF, */
-    if (contains(this->VSS)) {
-        return false;
-    }/* otherwise, if group contains voltage supply, it's ON. */
-    else if (contains(this->VCC)) {
-        return true;
+    for (auto s : this->segs) {
+        if (s->vss) {
+            return false;
+        }
     }
-
-
-
+    /* otherwise, if group contains voltage supply, it's ON. */
+    for (auto s : this->segs) {
+        if (s->vcc) {
+            return true;
+        }
+    }
+    /* otherwise, this test: */
     for (auto s : this->segs) {
         if (s->pullup) {
             return true;

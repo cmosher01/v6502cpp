@@ -42,6 +42,9 @@ void SegmentCache::initCommon() {
             get("-pch0"), get("-pch1"), get("-pch2"), get("-pch3"), get("-pch4"), get("-pch5"), get("-pch6"), get("-pch7"),
             get("+Pout0"), get("+Pout1"), get("+Pout2"), get("+Pout3"), get("+Pout4"), /*no P5 */get("+Pout6"), get("+Pout7"),
             get("-s0"), get("-s1"), get("-s2"), get("-s3"), get("-s4"), get("-s5"), get("-s6"), get("-s7"));
+
+    this->c->VSS->vss = true;
+    this->c->VCC->vcc = true;
 }
 
 unsigned char SegmentCache::rData() const {

@@ -15,15 +15,14 @@ class Trans;
 
 class StateCalculator {
 public:
-    static void recalc(const std::set<Segment*>& rSeg, Segment* VSS, Segment* VCC);
-    static void recalc(Segment* seg, Segment* VSS, Segment* VCC);
+    static void recalc(const std::set<Segment*>& rSeg);
+    static void recalc(Segment* seg);
 
 private:
     std::set<Segment*> segs;
-    Segment* VSS;
-    Segment* VCC;
 
-    StateCalculator(Segment* VSS, Segment* VCC);
+    StateCalculator() {
+    }
 
     virtual ~StateCalculator() {
     }

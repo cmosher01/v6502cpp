@@ -22,8 +22,8 @@ public:
     virtual ~TransNetwork();
 
 private:
-    TransNetwork(const TransNetwork&);
-    TransNetwork& operator=(const TransNetwork&);
+    TransNetwork(const TransNetwork&) = delete;
+    TransNetwork& operator=(const TransNetwork&) = delete;
 };
 
 #endif	/* TRANSNETWORK_H */

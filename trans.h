@@ -23,7 +23,10 @@ public:
     bool pulldown;
     bool on;
 
-    Segment(const std::string& id) : id(id), on(false), pulldown(false), pullup(id[0] == '+') {
+    bool vss;
+    bool vcc;
+
+    Segment(const std::string& id) : id(id), on(false), pulldown(false), pullup(id[0] == '+'), vss(false), vcc(false) {
     }
 
     void set(bool up) {

@@ -10,9 +10,6 @@
 #include "trans.h"
 #include <set>
 
-StateCalculator::StateCalculator(Segment* VSS, Segment* VCC) : VSS(VSS), VCC(VCC) {
-}
-
 //void StateCalculator::recalcAll() {
 //    std::set<int> riSeg;
 //    for (int iSeg = 0; iSeg < segs.size(); ++iSeg) {
@@ -21,10 +18,10 @@ StateCalculator::StateCalculator(Segment* VSS, Segment* VCC) : VSS(VSS), VCC(VCC
 //    recalc(riSeg);
 //}
 
-void StateCalculator::recalc(Segment* seg, Segment* VSS, Segment* VCC) {
+void StateCalculator::recalc(Segment* seg) {
     std::set<Segment*> rSeg;
     rSeg.insert(seg);
-    recalc(rSeg, VSS, VCC);
+    recalc(rSeg);
 }
 
 /*
@@ -35,7 +32,7 @@ void StateCalculator::recalc(Segment* seg, Segment* VSS, Segment* VCC) {
  */
 #define SANE (100)
 
-void StateCalculator::recalc(const std::set<Segment*>& segs, Segment* VSS, Segment* VCC) {
+void StateCalculator::recalc(const std::set<Segment*>& segs) {
     int sanity(0);
 
     std::set<Segment*> changed(segs);
@@ -44,7 +41,7 @@ void StateCalculator::recalc(const std::set<Segment*>& segs, Segment* VSS, Segme
             throw "ERROR: reached maximum iteration limit while recalculating CPU state";
         }
 
-        StateCalculator c(VSS, VCC);
+        StateCalculator c;
         for (auto s : changed) {
             c.recalcNode(s);
         }
@@ -61,8 +58,8 @@ void StateCalculator::recalc(const std::set<Segment*>& segs, Segment* VSS, Segme
  * to riSegChanged.
  */
 void StateCalculator::recalcNode(Segment* seg) {
-    if (!(seg == this->VSS || seg == this->VCC)) {
-        Circuit c(seg, this->VSS, this->VCC);
+    if (!(seg->vss || seg->vcc)) {
+        Circuit c(seg);
         for (auto s : c) {
             setSeg(s, c.getValue());
         }
@@ -87,7 +84,7 @@ void StateCalculator::setTrans(Trans* t, const bool on) {
 }
 
 void StateCalculator::addRecalc(Segment* seg) {
-    if (!(seg == this->VSS || seg == this->VCC)) {
+    if (!(seg->vss || seg->vcc)) {
         this->segs.insert(seg);
     }
 }

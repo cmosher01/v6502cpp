@@ -32,17 +32,7 @@
 //}
 
 int main(int argc, char *argv[]) {
-    std::ifstream if_trans("transistors");
-    if (!if_trans.is_open()) {
-        std::cerr << "error opening file: transistors" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-    TransNetwork tn(if_trans);
     AddressBus mem;
-    Trace trace(tn.segs);
-    Cpu6502 cpu(tn,mem,trace);
-
-
 
     /* Load some test program into memory */
     mem.write(0x0200, 0xEA); // NOP
@@ -58,6 +48,19 @@ int main(int argc, char *argv[]) {
 
     mem.write(0xFFFC, 0x02); // RESET --> $0202
     mem.write(0xFFFD, 0x02);
+
+
+
+    std::ifstream if_trans("transistors");
+    if (!if_trans.is_open()) {
+        std::cerr << "error opening file: transistors" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    TransNetwork tn(if_trans);
+    Trace trace(tn.segs);
+    Cpu6502 cpu(tn,mem,trace);
+
+    
 
 
 

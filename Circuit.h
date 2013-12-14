@@ -14,7 +14,7 @@ class Segment;
 
 class Circuit {
 public:
-    Circuit(Segment* extendFrom, Segment* VSS, Segment* VCC);
+    Circuit(Segment* extendFrom);
 
     virtual ~Circuit() {
     }
@@ -29,13 +29,7 @@ private:
 
     void extend(Segment* extendFrom);
 
-    bool contains(Segment* s) const {
-        return this->segs.find(s) != this->segs.end();
-    }
-
     std::set<Segment*> segs;
-    Segment* VSS;
-    Segment* VCC;
 };
 
 #endif	/* CIRCUIT_H */

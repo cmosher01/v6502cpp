@@ -69,11 +69,11 @@ void Cpu6502::setSeg(Segment* s, bool on) {
 }
 
 void Cpu6502::recalc(Segment* s) {
-    StateCalculator::recalc(s,n->VSS,n->VCC);
+    StateCalculator::recalc(s);
 }
 
 void Cpu6502::recalc(std::set<Segment*> s) {
-    StateCalculator::recalc(s,n->VSS,n->VCC);
+    StateCalculator::recalc(s);
 }
 
 void Cpu6502::initPins() {
