@@ -8,10 +8,6 @@
 #include "Circuit.h"
 #include "trans.h"
 
-Circuit::Circuit(Segment* extendFrom) {
-    extend(extendFrom);
-}
-
 /*
  * Adds segment extendFrom, and all segments electrically connected to it.
  * This happens recursively, but we don't recurse past ground or voltage supply.
@@ -19,8 +15,11 @@ Circuit::Circuit(Segment* extendFrom) {
 void Circuit::extend(Segment* extendFrom) {
     auto ret = this->segs.insert(extendFrom);
     if (!ret.second) {
+        /* We've already processed this segment. */
         return;
     }
+
+    /* Don't recurse past ground or voltage supply. */
     if (extendFrom->vss || extendFrom->vcc) {
         return;
     }

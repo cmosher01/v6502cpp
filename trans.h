@@ -10,6 +10,7 @@
 
 #include <string>
 #include <set>
+#include "ptr_less.h"
 
 class Trans;
 
@@ -34,9 +35,18 @@ public:
         this->pulldown = !up;
     }
 
-    static unsigned char asByte(Segment* b7, Segment* b6, Segment* b5, Segment* b4, Segment* b3, Segment* b2, Segment* b1, Segment* b0);
-    static unsigned short asWord(Segment* b15, Segment* b14, Segment* b13, Segment* b12, Segment* b11, Segment* b10, Segment* b9, Segment* b8, Segment* b7, Segment* b6, Segment* b5, Segment* b4, Segment* b3, Segment* b2, Segment* b1, Segment* b0);
+    static unsigned char asByte(Segment* b7, Segment* b6, Segment* b5, Segment* b4, Segment* b3, Segment* b2, Segment* b1, Segment* b0) {
+        return b7->on << 0x7 | b6->on << 0x6 | b5->on << 0x5 | b4->on << 0x4 | b3->on << 0x3 | b2->on << 0x2 | b1->on << 0x1 | b0->on;
+    }
+
+    static unsigned short asWord(Segment* bf, Segment* be, Segment* bd, Segment* bc, Segment* bb, Segment* ba, Segment* b9, Segment* b8, Segment* b7, Segment* b6, Segment* b5, Segment* b4, Segment* b3, Segment* b2, Segment* b1, Segment* b0) {
+        return bf->on << 0xf | be->on << 0xe | bd->on << 0xd | bc->on << 0xc | bb->on << 0xb | ba->on << 0xa | b9->on << 0x9 | b8->on << 0x8 | b7->on << 0x7 | b6->on << 0x6 | b5->on << 0x5 | b4->on << 0x4 | b3->on << 0x3 | b2->on << 0x2 | b1->on << 0x1 | b0->on;
+    }
+
+    bool operator<(const Segment& that) { return this->id < that.id; }
 };
+
+typedef std::set<Segment*,ptr_less<Segment>> setpSeg;
 
 class Trans {
 public:

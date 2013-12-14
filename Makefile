@@ -1,6 +1,6 @@
-CXXFLAGS=-g -std=c++11 -Wall -O4
+CXXFLAGS=-g -std=c++11 -Wall -O0
 
-SRCS = v6502.cpp trans.cpp SegmentCache.cpp TransNetwork.cpp Trace.cpp Circuit.cpp StateCalculator.cpp Cpu6502.cpp
+SRCS = v6502.cpp SegmentCache.cpp TransNetwork.cpp Trace.cpp Circuit.cpp StateCalculator.cpp Cpu6502.cpp
 OBJS = $(SRCS:.cpp=.o)
 DEPS = $(SRCS:.cpp=.d)
 

@@ -27,8 +27,8 @@ public:
     Segment* getOrAdd(const std::string& id);
     Segment* get(const std::string& id) const;
 
-    std::set<Segment*> all() {
-        std::set<Segment*> s;
+    setpSeg all() const {
+        setpSeg s;
         for (auto i : this->cache) {
             s.insert(i.second.get());
         }
@@ -182,7 +182,10 @@ public:
     unsigned short rPC() const;
 
     void setDataSegs(const unsigned char data);
-    void addDataToRecalc(std::set<Segment*>& s);
+    void addDataToRecalc(setpSeg& s);
+
+    std::map<const std::string, std::shared_ptr<Segment > >::const_iterator begin() const { return this->cache.begin(); }
+    std::map<const std::string, std::shared_ptr<Segment > >::const_iterator end() const { return this->cache.end(); }
 
 private:
     std::map<const std::string, std::shared_ptr<Segment > > cache;

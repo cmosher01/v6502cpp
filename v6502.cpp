@@ -5,31 +5,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
+#include <set>
 
-
-
-//memory[0xFF] = 0x68;  // PLA
-
-//memory[0xFF] = 0xFF;
-//memory[0xFFFF] = 0xFE;
-//memory[0xFEFE] = 0xFD;
-//memory[0xFDFD] = 0xFC;
-//memory[0xFCFC] = 0xFB;
-//memory[0xFBFB] = 0xFA;
-//memory[0xFAFA] = 0xF9;
-
-//void pZP() {
-//    int a = 0;
-//    for (int i = 0; i < 16; ++i) {
-//        pHexw(a);
-//        std::cout << ": ";
-//        for (int j = 0; j < 16; ++j) {
-//            pHex(memory[a++]);
-//            std::cout << " ";
-//        }
-//        std::cout << std::endl;
-//    }
-//}
 
 int main(int argc, char *argv[]) {
     AddressBus mem;
@@ -58,9 +35,9 @@ int main(int argc, char *argv[]) {
     }
     TransNetwork tn(if_trans);
     Trace trace(tn.segs);
-    Cpu6502 cpu(tn,mem,trace);
+    Cpu6502 cpu(tn, mem, trace);
 
-    
+
 
 
 

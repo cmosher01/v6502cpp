@@ -7,6 +7,8 @@
 
 #include "TransNetwork.h"
 #include "trans.h"
+#include <set>
+#include <string>
 #include <memory>
 #include <iostream>
 

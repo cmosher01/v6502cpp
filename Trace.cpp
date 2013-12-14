@@ -9,6 +9,7 @@
 #include "SegmentCache.h"
 #include <iostream>
 #include <iomanip>
+#include <cassert>
 
 static void pHex(const unsigned long x, const int width) {
     std::cout << std::setw(width) << std::setfill('0') << std::hex << x << std::dec;
@@ -23,22 +24,18 @@ static void pHexw(const unsigned short x) {
 }
 
 void Trace::dumpSegments() const {
-//    for (int i = 0; i < segs.size(); ++i) {
-//        seg& s = segs[i];
-//        if (s.pullup) {
-//            std::cout << "U";
-//        } else if (s.pulldown) {
-//            std::cout << "D";
-//        } else {
-//            std::cout << "f";
-//        }
-//        if (s->on) {
-//            std::cout << "+";
-//        } else {
-//            std::cout << "-";
-//        }
-//    }
-//    std::cout << std::endl;
+    for (auto sp : this->s) {
+        Segment* seg = sp.second.get();
+        assert(!(seg->pullup && seg->pulldown));
+        if (seg->pullup) {
+            std::cout << (seg->on ? "U" : "u");
+        } else if (seg->pulldown) {
+            std::cout << (seg->on ? "D" : "d");
+        } else {
+            std::cout << (seg->on ? "F" : "f");
+        }
+    }
+    std::cout << std::endl;
 }
 
 void Trace::dumpRegisters() const {

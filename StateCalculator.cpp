@@ -10,16 +10,8 @@
 #include "trans.h"
 #include <set>
 
-//void StateCalculator::recalcAll() {
-//    std::set<int> riSeg;
-//    for (int iSeg = 0; iSeg < segs.size(); ++iSeg) {
-//        addRecalc(iSeg,riSeg);
-//    }
-//    recalc(riSeg);
-//}
-
 void StateCalculator::recalc(Segment* seg) {
-    std::set<Segment*> rSeg;
+    setpSeg rSeg;
     rSeg.insert(seg);
     recalc(rSeg);
 }
@@ -32,10 +24,10 @@ void StateCalculator::recalc(Segment* seg) {
  */
 #define SANE (100)
 
-void StateCalculator::recalc(const std::set<Segment*>& segs) {
+void StateCalculator::recalc(const setpSeg& segs) {
     int sanity(0);
 
-    std::set<Segment*> changed(segs);
+    setpSeg changed(segs);
     while (!changed.empty()) {
         if (++sanity >= SANE) {
             throw "ERROR: reached maximum iteration limit while recalculating CPU state";
@@ -45,7 +37,7 @@ void StateCalculator::recalc(const std::set<Segment*>& segs) {
         for (auto s : changed) {
             c.recalcNode(s);
         }
-        changed = c.getChanged();
+        changed = c.segs;
     }
 }
 

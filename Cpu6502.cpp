@@ -29,7 +29,7 @@
 #endif
 
 #ifdef TRACESEG
-#define dumpSegs() dumpSegments()
+#define dumpSegs() this->trace.dumpSegments()
 #else
 #define dumpSegs()
 #endif
@@ -59,21 +59,13 @@ void Cpu6502::powerOn() {
     initPins();
 
     std::cout << "initial full calculation..." << std::endl;
-    recalc(segs.all());
+    StateCalculator::recalc(segs.all());
     dumpRegs();
     dumpSegs();
 }
 
 void Cpu6502::setSeg(Segment* s, bool on) {
     s->set(on);
-}
-
-void Cpu6502::recalc(Segment* s) {
-    StateCalculator::recalc(s);
-}
-
-void Cpu6502::recalc(std::set<Segment*> s) {
-    StateCalculator::recalc(s);
 }
 
 void Cpu6502::initPins() {
@@ -108,7 +100,7 @@ void Cpu6502::initPins() {
 
 void Cpu6502::reset() {
     setSeg(n->RES, true);
-    recalc(n->RES);
+    StateCalculator::recalc(n->RES);
 }
 
 void Cpu6502::tick() {
@@ -138,7 +130,7 @@ void Cpu6502::step() {
 
 void Cpu6502::clock(bool phase) {
     setSeg(n->CLK0, phase);
-    recalc(n->CLK0);
+    StateCalculator::recalc(n->CLK0);
 }
 
 void Cpu6502::rw() {
@@ -146,9 +138,9 @@ void Cpu6502::rw() {
     if (n->CLK2OUT->on) {
         readBus();
 
-        std::set<Segment*> s;
+        setpSeg s;
         segs.addDataToRecalc(s);
-        recalc(s);
+        StateCalculator::recalc(s);
 
         writeBus();
     }

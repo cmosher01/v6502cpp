@@ -95,7 +95,7 @@ void SegmentCache::setDataSegs(const unsigned char data) {
     this->c->DB7->set(x & 1);
 }
 
-void SegmentCache::addDataToRecalc(std::set<Segment*>& s) {
+void SegmentCache::addDataToRecalc(setpSeg& s) {
     s.insert(this->c->DB0);
     s.insert(this->c->DB1);
     s.insert(this->c->DB2);

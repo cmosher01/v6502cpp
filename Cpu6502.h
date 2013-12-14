@@ -42,8 +42,6 @@ private:
     void write(unsigned short addr, unsigned char data);
 
     static void setSeg(Segment* s, bool on);
-    void recalc(Segment* s);
-    void recalc(std::set<Segment*> s);
 
     TransNetwork& transNetwork;
     AddressBus& addressBus;

@@ -9,17 +9,15 @@
 #define	STATECALCULATOR_H
 
 #include <set>
-
-class Segment;
-class Trans;
+#include "trans.h"
 
 class StateCalculator {
 public:
-    static void recalc(const std::set<Segment*>& rSeg);
-    static void recalc(Segment* seg);
+
+    static void recalc(const setpSeg& rSeg);
+    static void recalc(Segment* seg); // convenience method
 
 private:
-    std::set<Segment*> segs;
 
     StateCalculator() {
     }
@@ -27,17 +25,15 @@ private:
     virtual ~StateCalculator() {
     }
 
-    StateCalculator(const StateCalculator&);
-    StateCalculator& operator=(const StateCalculator&);
+    StateCalculator(const StateCalculator&) = delete;
+    StateCalculator& operator=(const StateCalculator&) = delete;
 
     void recalcNode(Segment* seg);
     void setSeg(Segment* s, const bool on);
     void setTrans(Trans* t, const bool on);
     void addRecalc(Segment* seg);
 
-    std::set<Segment*> getChanged() {
-        return this->segs;
-    }
+    setpSeg segs;
 };
 
 #endif	/* STATECALCULATOR_H */
