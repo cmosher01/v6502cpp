@@ -11,19 +11,21 @@
 class SegmentCache;
 class Common;
 
-class Trace {
+class Trace final {
 public:
-    Trace(const SegmentCache& s, const Common& common) : s(s), common(common) {}
-    virtual ~Trace() {}
+
+    Trace(const SegmentCache& segs, const Common& common) : segs(segs), common(common) {
+    }
 
     void dumpSegments() const;
     void dumpRegisters() const;
 
 private:
+
     Trace(const Trace&) = delete;
     Trace& operator=(const Trace&) = delete;
 
-    const SegmentCache& s;
+    const SegmentCache& segs;
     const Common& common;
 };
 

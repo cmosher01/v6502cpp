@@ -8,28 +8,19 @@
 #ifndef CPU6502_H
 #define	CPU6502_H
 
-#include <set>
-#include <utility>
+#include "SegmentTypes.h"
 
-class Segment;
-class SegmentCache;
-class Common;
-class TransNetwork;
 class AddressBus;
 class Trace;
 class Common;
 
-class Cpu6502 {
+class Cpu6502 final {
 public:
 
-    Cpu6502(AddressBus& addressBus, Trace& trace, Common& common);
-
-    virtual ~Cpu6502() {
+    Cpu6502(AddressBus& addressBus, Trace& trace, Common& common) : addressBus(addressBus), trace(trace), common(common) {
     }
 
-    typedef std::set<std::pair<Segment*, bool >> PinSettings;
     void setPins(const PinSettings& ps);
-
     void clock(bool phase);
 
 

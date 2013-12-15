@@ -6,14 +6,11 @@
  */
 
 #include "Cpu6502.h"
-#include "TransNetwork.h"
-#include "trans.h"
 #include "addressbus.h"
-#include "Trace.h"
-#include <iostream>
-#include <utility>
 #include "StateCalculator.h"
+#include "Trace.h"
 #include "Common.h"
+#include "trans.h"
 
 
 
@@ -22,11 +19,9 @@
 
 
 
-Cpu6502::Cpu6502(AddressBus& addressBus, Trace& trace, Common& common) : addressBus(addressBus), trace(trace), common(common) {
-}
 
 void Cpu6502::setPins(const PinSettings& ps) {
-    setpSeg rec;
+    SegmentSet rec;
     for (auto p : ps) {
         p.first->set(p.second);
         rec.insert(p.first);
@@ -57,11 +52,7 @@ void Cpu6502::rw() {
 
 void Cpu6502::readData() {
     if (this->common.RW->on) {
-        this->common.setDataSegs(this->addressBus.read(this->common.rAddr()));
-
-        setpSeg s;
-        this->common.addDataToRecalc(s);
-        StateCalculator::recalc(s);
+        setPins(this->common.getDataPinSettings(this->addressBus.read(this->common.rAddr())));
     }
 }
 

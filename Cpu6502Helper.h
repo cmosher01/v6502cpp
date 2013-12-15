@@ -11,11 +11,11 @@
 class Cpu6502;
 class Common;
 
-class Cpu6502Helper {
+class Cpu6502Helper final {
 public:
 
-    Cpu6502Helper(Cpu6502& cpu, Common& common);
-    virtual ~Cpu6502Helper();
+    Cpu6502Helper(Cpu6502& cpu, Common& common) : cpu(cpu), common(common), nextPhase(true) {
+    }
 
     void powerOn();
     void tick();
@@ -30,6 +30,7 @@ private:
 
     Cpu6502& cpu;
     Common& common;
+
     bool nextPhase;
 };
 

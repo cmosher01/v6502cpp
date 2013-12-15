@@ -8,26 +8,19 @@
 #include "StateCalculator.h"
 #include "Circuit.h"
 #include "trans.h"
-#include <set>
-
-void StateCalculator::recalc(Segment* seg) {
-    setpSeg rSeg;
-    rSeg.insert(seg);
-    recalc(rSeg);
-}
 
 /*
  * Recalculate segment states (on/off), based on the fact that the segments
- * in riSeg have just changed state. Keep track of which other segments are
+ * in segs have just changed state. Keep track of which other segments are
  * affected, and repeat the process on those segments. Repeat until no more
  * segments change state.
  */
 #define SANE (100)
 
-void StateCalculator::recalc(const setpSeg& segs) {
+void StateCalculator::recalc(const SegmentSet& segs) {
     int sanity(0);
 
-    setpSeg changed(segs);
+    SegmentSet changed(segs);
     while (!changed.empty()) {
         if (++sanity >= SANE) {
             throw "ERROR: reached maximum iteration limit while recalculating CPU state";
@@ -42,12 +35,12 @@ void StateCalculator::recalc(const setpSeg& segs) {
 }
 
 /*
- * Gets group of segments currently electrically connected to iSeg,
+ * Gets group of segments currently electrically connected to seg,
  * gets what their group value is (or should be), goes through all
  * those segments and sets their "on" value. For all connected gates,
  * turn on/off, and indicate that the segments connected to those
  * transistors' source and drain legs have changed, by adding them
- * to riSegChanged.
+ * to this->segs.
  */
 void StateCalculator::recalcNode(Segment* seg) {
     if (!(seg->vss || seg->vcc)) {
@@ -70,13 +63,7 @@ void StateCalculator::setSeg(Segment* s, const bool on) {
 void StateCalculator::setTrans(Trans* t, const bool on) {
     if (t->on != on) {
         t->on = on;
-        addRecalc(t->c1);
-        addRecalc(t->c2);
-    }
-}
-
-void StateCalculator::addRecalc(Segment* seg) {
-    if (!(seg->vss || seg->vcc)) {
-        this->segs.insert(seg);
+        this->segs.insert(t->c1);
+        this->segs.insert(t->c2);
     }
 }

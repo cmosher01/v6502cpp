@@ -8,39 +8,39 @@
 #ifndef SEGMENTCACHE_H
 #define	SEGMENTCACHE_H
 
-#include "setpSeg.h"
-#include <memory>
-#include <string>
+#include "SegmentTypes.h"
 #include <map>
 #include <set>
+#include <string>
+#include <memory>
 
-class Segment;
 class Common;
 
-class SegmentCache {
+class SegmentCache final {
 public:
 
     SegmentCache() {
     }
 
-    virtual ~SegmentCache() {
-    }
-
     Segment* getOrAdd(const std::string& id);
 
-    setpSeg all() const;
+    SegmentSet all() const;
 
 
-    std::map<const std::string, std::shared_ptr<Segment > >::const_iterator begin() const {
+
+    typedef std::map<const std::string, std::shared_ptr<Segment>> Map;
+
+    Map::const_iterator begin() const {
         return this->cache.begin();
     }
 
-    std::map<const std::string, std::shared_ptr<Segment > >::const_iterator end() const {
+    Map::const_iterator end() const {
         return this->cache.end();
     }
 
 private:
-    std::map<const std::string, std::shared_ptr<Segment > > cache;
+
+    Map cache;
 
     SegmentCache(const SegmentCache&) = delete;
     SegmentCache& operator=(const SegmentCache&) = delete;

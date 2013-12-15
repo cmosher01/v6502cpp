@@ -8,7 +8,7 @@
 #ifndef TRANS_H
 #define	TRANS_H
 
-#include "setpSeg.h"
+#include "SegmentTypes.h"
 #include <set>
 #include <string>
 
@@ -18,10 +18,11 @@ class Trans;
 
 enum class Pull { UP, DOWN, FLOAT };
 
-class Segment {
-public:
-
+class Segment final {
+private:
     const std::string id;
+
+public:
     std::set<Trans*> gates;
     std::set<Trans*> c1c2s;
     bool vss;
@@ -35,16 +36,13 @@ public:
     Segment(const std::string& id) : id(id), vss(false), vcc(false), pull(id[0]=='+' ? Pull::UP : Pull::FLOAT), on(false) {
     }
 
-    virtual ~Segment() {
-    }
-
 
 
     void set(const bool up) {
         this->pull = (up ? Pull::UP : Pull::DOWN);
     }
 
-    bool operator<(const Segment& that) { return this->id < that.id; }
+    bool operator<(const Segment& that) const { return this->id < that.id; }
 
 
 
@@ -68,7 +66,7 @@ private:
 
 
 
-class Trans {
+class Trans final {
 public:
 
     Segment* c1;
@@ -82,9 +80,6 @@ public:
         c1->c1c2s.insert(this);
         gate->gates.insert(this);
         c2->c1c2s.insert(this);
-    }
-
-    virtual ~Trans() {
     }
 
 private:

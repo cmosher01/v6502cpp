@@ -7,26 +7,25 @@
 
 #include "Trace.h"
 #include "SegmentCache.h"
-#include "trans.h"
 #include "Common.h"
+#include "trans.h"
 #include <iostream>
 #include <iomanip>
-#include <cassert>
 
 static void pHex(const unsigned long x, const int width) {
     std::cout << std::setw(width) << std::setfill('0') << std::hex << x << std::dec;
 }
 
 static void pHexb(const unsigned char x) {
-    pHex(x,2);
+    pHex(x, 2);
 }
 
 static void pHexw(const unsigned short x) {
-    pHex(x,4);
+    pHex(x, 4);
 }
 
 void Trace::dumpSegments() const {
-    for (auto sp : this->s) {
+    for (auto sp : this->segs) {
         Segment* seg = sp.second.get();
         if (seg->pull == Pull::UP) {
             std::cout << (seg->on ? "U" : "u");
@@ -41,11 +40,14 @@ void Trace::dumpSegments() const {
 
 void Trace::dumpRegisters() const {
     std::cout << "A";
-    pHexb(common.rA());
+    pHexb(this->common.rA());
+
     std::cout << " X";
-    pHexb(common.rX());
+    pHexb(this->common.rX());
+
     std::cout << " Y";
-    pHexb(common.rY());
+    pHexb(this->common.rY());
+
     std::cout << " ";
     std::cout << (this->common.P7->on ? "N" : "n");
     std::cout << (this->common.P6->on ? "V" : "v");
@@ -55,10 +57,13 @@ void Trace::dumpRegisters() const {
     std::cout << (this->common.P2->on ? "I" : "i");
     std::cout << (this->common.P1->on ? "Z" : "z");
     std::cout << (this->common.P0->on ? "C" : "c");
+
     std::cout << " S";
-    pHexb(common.rS());
+    pHexb(this->common.rS());
+
     std::cout << " PC";
-    pHexw(common.rPC());
+    pHexw(this->common.rPC());
+
     if (this->common.CLK1OUT->on) {
         std::cout << "  PH1  ";
     }
@@ -73,9 +78,12 @@ void Trace::dumpRegisters() const {
     if (!(this->common.CLK1OUT->on || this->common.CLK2OUT->on)) {
         std::cout << "  PH-  ";
     }
+
     std::cout << " DB";
-    pHexb(common.rData());
+    pHexb(this->common.rData());
+
     std::cout << " AB";
-    pHexw(common.rAddr());
+    pHexw(this->common.rAddr());
+
     std::cout << std::endl;
 }

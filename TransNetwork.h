@@ -8,19 +8,18 @@
 #ifndef TRANSNETWORK_H
 #define	TRANSNETWORK_H
 
-class Trans;
+#include <istream>
 #include <set>
 #include <memory>
-#include <istream>
 
 class SegmentCache;
 class Common;
+class Trans;
 
-class TransNetwork {
+class TransNetwork final {
 public:
 
     TransNetwork(std::istream& readFromHere, SegmentCache& segs);
-    virtual ~TransNetwork();
 
 private:
 
@@ -28,7 +27,7 @@ private:
     TransNetwork& operator=(const TransNetwork&) = delete;
 
     SegmentCache& segs;
-    std::set<std::shared_ptr<Trans >> transes;
+    std::set<std::shared_ptr<Trans>> transes;
 
     friend Common;
 };

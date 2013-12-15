@@ -8,30 +8,32 @@
 #ifndef COMMON_H
 #define	COMMON_H
 
-#include "setpSeg.h"
+#include "SegmentTypes.h"
 
 class TransNetwork;
-class Segment;
 
-class Common {
+class Common final {
 public:
-    Segment *VSS, *VCC;
-    Segment *CLK0;
-    Segment *IRQ, *RES, *NMI;
-    Segment *RDY, *SO;
-    Segment *DB0, *DB1, *DB2, *DB3, *DB4, *DB5, *DB6, *DB7;
-    Segment *AB0, *AB1, *AB2, *AB3, *AB4, *AB5, *AB6, *AB7, *AB8, *AB9, *AB10, *AB11, *AB12, *AB13, *AB14, *AB15;
-    Segment *RW, *SYNC;
-    Segment *CLK1OUT, *CLK2OUT;
-    Segment *A0, *A1, *A2, *A3, *A4, *A5, *A6, *A7;
-    Segment *X0, *X1, *X2, *X3, *X4, *X5, *X6, *X7;
-    Segment *Y0, *Y1, *Y2, *Y3, *Y4, *Y5, *Y6, *Y7;
-    Segment *PCL0, *PCL1, *PCL2, *PCL3, *PCL4, *PCL5, *PCL6, *PCL7;
-    Segment *PCH0, *PCH1, *PCH2, *PCH3, *PCH4, *PCH5, *PCH6, *PCH7;
-    Segment *P0, *P1, *P2, *P3, *P4, /* no P5 */ *P6, *P7;
-    Segment *S0, *S1, *S2, *S3, *S4, *S5, *S6, *S7;
+
+    Segment * const VSS, * const VCC;
+    Segment * const CLK0;
+    Segment * const IRQ, * const RES, * const NMI;
+    Segment * const RDY, * const SO;
+    Segment * const DB0, * const DB1, * const DB2, * const DB3, * const DB4, * const DB5, * const DB6, * const DB7;
+    Segment * const AB0, * const AB1, * const AB2, * const AB3, * const AB4, * const AB5, * const AB6, * const AB7, * const AB8, * const AB9, * const AB10, * const AB11, * const AB12, * const AB13, * const AB14, * const AB15;
+    Segment * const RW, * const SYNC;
+    Segment * const CLK1OUT, * const CLK2OUT;
+    Segment * const A0, * const A1, * const A2, * const A3, * const A4, * const A5, * const A6, * const A7;
+    Segment * const X0, * const X1, * const X2, * const X3, * const X4, * const X5, * const X6, * const X7;
+    Segment * const Y0, * const Y1, * const Y2, * const Y3, * const Y4, * const Y5, * const Y6, * const Y7;
+    Segment * const PCL0, * const PCL1, * const PCL2, * const PCL3, * const PCL4, * const PCL5, * const PCL6, * const PCL7;
+    Segment * const PCH0, * const PCH1, * const PCH2, * const PCH3, * const PCH4, * const PCH5, * const PCH6, * const PCH7;
+    Segment * const P0, * const P1, * const P2, * const P3, * const P4, /* no P5 */ * const P6, * const P7;
+    Segment * const S0, * const S1, * const S2, * const S3, * const S4, * const S5, * const S6, * const S7;
 
 
+
+    Common(const TransNetwork& segs);
 
     unsigned char rA() const;
     unsigned char rX() const;
@@ -41,13 +43,12 @@ public:
     unsigned short rAddr() const;
     unsigned char rData() const;
 
-    void setDataSegs(const unsigned char data);
-    void addDataToRecalc(setpSeg& s) const;
+    PinSettings getDataPinSettings(const unsigned char data) const;
 
 
-    Common(const TransNetwork& segs);
 
 private:
+
     Common(
             Segment* VSS, Segment* VCC,
             Segment* CLK0,

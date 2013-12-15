@@ -9,23 +9,18 @@
 #define	STATECALCULATOR_H
 
 #include <set>
-#include "setpSeg.h"
+#include "SegmentTypes.h"
 
-class Segment;
 class Trans;
 
-class StateCalculator {
+class StateCalculator final {
 public:
 
-    static void recalc(const setpSeg& rSeg);
-    static void recalc(Segment* seg); // convenience method
+    static void recalc(const SegmentSet& rSeg);
 
 private:
 
     StateCalculator() {
-    }
-
-    virtual ~StateCalculator() {
     }
 
     StateCalculator(const StateCalculator&) = delete;
@@ -34,9 +29,8 @@ private:
     void recalcNode(Segment* seg);
     void setSeg(Segment* s, const bool on);
     void setTrans(Trans* t, const bool on);
-    void addRecalc(Segment* seg);
 
-    setpSeg segs;
+    SegmentSet segs;
 };
 
 #endif	/* STATECALCULATOR_H */

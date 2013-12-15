@@ -56,23 +56,23 @@ bool Circuit::getValue() {
             return false;
         }
     }
-    /* otherwise, if group contains voltage supply, it's ON. */
+
+    /*
+     * otherwise, if any segment in the group is not floating,
+     * return that segment as the value, otherwise if any floating
+     * segment is ON, then return ON as the value.
+     */
     for (auto s : this->segs) {
-        if (s->vcc) {
+        if (s->pull != Pull::FLOAT) {
+            return (s->pull == Pull::UP);
+        } else if (s->on) {
             return true;
         }
     }
-    /* otherwise, this test: */
-    for (auto s : this->segs) {
-        if (s->pull == Pull::UP) {
-            return true;
-        }
-        if (s->pull == Pull::DOWN) {
-            return false;
-        }
-        if (s->on) {
-            return true;
-        }
-    }
+
+    /*
+     * otherwise, if we get here, it means that all segments in the
+     * group are floating and OFF, so return OFF as the value.
+     */
     return false;
 }

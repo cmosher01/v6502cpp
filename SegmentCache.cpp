@@ -44,8 +44,8 @@ Segment* SegmentCache::get(const std::string& id) const {
     return this->cache.at(id).get();
 }
 
-setpSeg SegmentCache::all() const {
-    setpSeg s;
+SegmentSet SegmentCache::all() const {
+    SegmentSet s;
     for (auto i : this->cache) {
         s.insert(i.second.get());
     }

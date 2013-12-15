@@ -6,14 +6,13 @@
  */
 
 #include "TransNetwork.h"
+#include "SegmentCache.h"
+#include "StateCalculator.h"
 #include "trans.h"
+#include <iostream>
 #include <set>
 #include <string>
 #include <memory>
-#include <iostream>
-#include "StateCalculator.h"
-#include "Common.h"
-#include "SegmentCache.h"
 
 TransNetwork::TransNetwork(std::istream& in, SegmentCache& segs) : segs(segs) {
     std::string c1, gate, c2;
@@ -24,7 +23,4 @@ TransNetwork::TransNetwork(std::istream& in, SegmentCache& segs) : segs(segs) {
     }
 
     StateCalculator::recalc(this->segs.all());
-}
-
-TransNetwork::~TransNetwork() {
 }

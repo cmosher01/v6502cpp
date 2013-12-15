@@ -7,39 +7,25 @@
 
 #include "Cpu6502Helper.h"
 #include "Cpu6502.h"
-#include "SegmentCache.h"
-#include "TransNetwork.h"
-#include "trans.h"
-#include "addressbus.h"
-#include "Trace.h"
-#include <iostream>
-#include "StateCalculator.h"
-#include <utility>
-#include <set>
 #include "Common.h"
-
-Cpu6502Helper::Cpu6502Helper(Cpu6502& cpu, Common& common) : cpu(cpu), common(common), nextPhase(true) {
-}
-
-Cpu6502Helper::~Cpu6502Helper() {
-}
+#include "SegmentTypes.h"
 
 void Cpu6502Helper::powerOn() {
-    Cpu6502::PinSettings ps;
+    PinSettings ps;
 
     // set voltage supply and ground.
-    ps.insert(std::make_pair(common.VCC, true));
-    ps.insert(std::make_pair(common.VSS, false));
+    ps.insert(std::make_pair(this->common.VCC, true));
+    ps.insert(std::make_pair(this->common.VSS, false));
 
     // don't do the set-overflow overriding functionality
-    ps.insert(std::make_pair(common.SO, false));
+    ps.insert(std::make_pair(this->common.SO, false));
 
     // ready to run (i.e., do not do single-stepping of instructions)
-    ps.insert(std::make_pair(common.RDY, true));
+    ps.insert(std::make_pair(this->common.RDY, true));
 
     // pull up to indicate that we are not interrupting now
-    ps.insert(std::make_pair(common.IRQ, true));
-    ps.insert(std::make_pair(common.NMI, true));
+    ps.insert(std::make_pair(this->common.IRQ, true));
+    ps.insert(std::make_pair(this->common.NMI, true));
 
 
     /*
@@ -53,11 +39,11 @@ void Cpu6502Helper::powerOn() {
      * CPU does not start up normal operations yet. The caller can set RES_BAR high (by calling
      * reset) whenever he is ready to start the CPU running.
      */
-    ps.insert(std::make_pair(common.RES, false));
+    ps.insert(std::make_pair(this->common.RES, false));
 
-    cpu.setPins(ps);
+    this->cpu.setPins(ps);
 
-    nextPhase = true;
+    this->nextPhase = true;
 }
 
 void Cpu6502Helper::tick() {
@@ -76,11 +62,11 @@ void Cpu6502Helper::step() {
      * 
      * The real 6502, of course, does not do this.
      */
-    nextPhase = !nextPhase;
+    this->nextPhase = !this->nextPhase;
 
-    cpu.clock(nextPhase);
+    this->cpu.clock(this->nextPhase);
 }
 
 void Cpu6502Helper::reset() {
-    cpu.setPins(Cpu6502::PinSettings{std::make_pair(common.RES, true)});
+    this->cpu.setPins(PinSettings{std::make_pair(this->common.RES, true)});
 }

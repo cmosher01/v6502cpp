@@ -58,33 +58,26 @@ unsigned short Common::rPC() const {
     return Segment::asWord(this->PCH7, this->PCH6, this->PCH5, this->PCH4, this->PCH3, this->PCH2, this->PCH1, this->PCH0, this->PCL7, this->PCL6, this->PCL5, this->PCL4, this->PCL3, this->PCL2, this->PCL1, this->PCL0);
 }
 
-void Common::setDataSegs(const unsigned char data) {
+PinSettings Common::getDataPinSettings(const unsigned char data) const {
     unsigned char x = data;
 
-    this->DB0->set(x & 1);
-    x >>= 1;
-    this->DB1->set(x & 1);
-    x >>= 1;
-    this->DB2->set(x & 1);
-    x >>= 1;
-    this->DB3->set(x & 1);
-    x >>= 1;
-    this->DB4->set(x & 1);
-    x >>= 1;
-    this->DB5->set(x & 1);
-    x >>= 1;
-    this->DB6->set(x & 1);
-    x >>= 1;
-    this->DB7->set(x & 1);
-}
+    PinSettings ps;
 
-void Common::addDataToRecalc(setpSeg& s) const {
-    s.insert(this->DB0);
-    s.insert(this->DB1);
-    s.insert(this->DB2);
-    s.insert(this->DB3);
-    s.insert(this->DB4);
-    s.insert(this->DB5);
-    s.insert(this->DB6);
-    s.insert(this->DB7);
+    ps.insert(std::make_pair(this->DB0,x & 1));
+    x >>= 1;
+    ps.insert(std::make_pair(this->DB1,x & 1));
+    x >>= 1;
+    ps.insert(std::make_pair(this->DB2,x & 1));
+    x >>= 1;
+    ps.insert(std::make_pair(this->DB3,x & 1));
+    x >>= 1;
+    ps.insert(std::make_pair(this->DB4,x & 1));
+    x >>= 1;
+    ps.insert(std::make_pair(this->DB5,x & 1));
+    x >>= 1;
+    ps.insert(std::make_pair(this->DB6,x & 1));
+    x >>= 1;
+    ps.insert(std::make_pair(this->DB7,x & 1));
+
+    return ps;
 }

@@ -10,9 +10,12 @@
 
 #include "ptr_less.h"
 #include <set>
+#include <utility>
+
 class Segment;
 
-typedef std::set<Segment*,ptr_less<Segment>> setpSeg;
+typedef std::set<Segment*,ptr_less<Segment>> SegmentSet;
+typedef std::set<std::pair<Segment*, bool>> PinSettings;
 
 #endif	/* SETPSEG_H */
 

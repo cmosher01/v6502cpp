@@ -8,35 +8,31 @@
 #ifndef CIRCUIT_H
 #define	CIRCUIT_H
 
+#include "SegmentTypes.h"
 #include <set>
-#include "setpSeg.h"
-
-class Segment;
 
 /*
  * Builds a circuit, given one segment in that circuit.
  * Extends the given segment by traversing the ON
  * transistors it is connected to, recursively, until
  * hitting ground and voltage supply. Provides iterators
- * for retrieving all the circuit's segments.
+ * for retrieving all the circuit's segments, and a method
+ * to get the ON value of the circuit.
  */
-class Circuit {
+class Circuit final {
 public:
 
     Circuit(Segment* extendFrom) {
         extend(extendFrom);
     }
 
-    virtual ~Circuit() {
-    }
-
     bool getValue();
 
-    setpSeg::iterator begin() {
+    SegmentSet::iterator begin() {
         return this->segs.begin();
     }
 
-    setpSeg::iterator end() {
+    SegmentSet::iterator end() {
         return this->segs.end();
     }
 
@@ -47,7 +43,7 @@ private:
 
     void extend(Segment* extendFrom);
 
-    setpSeg segs;
+    SegmentSet segs;
 };
 
 #endif	/* CIRCUIT_H */
