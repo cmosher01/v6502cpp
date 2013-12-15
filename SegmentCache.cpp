@@ -6,9 +6,14 @@
  */
 
 #include "SegmentCache.h"
+#include "Common.h"
 #include <memory>
 #include <string>
 #include <map>
+
+SegmentCache::~SegmentCache() {
+    delete this->c;
+}
 
 Segment* SegmentCache::getOrAdd(const std::string& id) {
     if (this->cache.find(id) == this->cache.end()) {
@@ -95,7 +100,7 @@ void SegmentCache::setDataSegs(const unsigned char data) {
     this->c->DB7->set(x & 1);
 }
 
-void SegmentCache::addDataToRecalc(setpSeg& s) {
+void SegmentCache::addDataToRecalc(setpSeg& s) const {
     s.insert(this->c->DB0);
     s.insert(this->c->DB1);
     s.insert(this->c->DB2);

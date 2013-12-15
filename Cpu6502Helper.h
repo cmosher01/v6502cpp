@@ -8,14 +8,31 @@
 #ifndef CPU6502HELPER_H
 #define	CPU6502HELPER_H
 
+class Cpu6502;
+
+class Common;
+
 class Cpu6502Helper {
 public:
-    Cpu6502Helper();
-    Cpu6502Helper(const Cpu6502Helper& orig);
+
+    explicit Cpu6502Helper(Cpu6502& cpu);
     virtual ~Cpu6502Helper();
+
+    void powerOn();
+    void tick();
+    void reset();
+
 private:
 
+    Cpu6502Helper(const Cpu6502Helper&) = delete;
+    Cpu6502Helper& operator=(const Cpu6502Helper&) = delete;
+
+    void step();
+
+    Cpu6502& cpu;
+    bool nextPhase;
+
+    Common* n;
 };
 
 #endif	/* CPU6502HELPER_H */
-

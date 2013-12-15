@@ -8,9 +8,12 @@
 #ifndef CPU6502_H
 #define	CPU6502_H
 
-#include "TransNetwork.h"
+#include <set>
+#include <utility>
 
-
+class Segment;
+class SegmentCache;
+class Common;
 class TransNetwork;
 class AddressBus;
 class Trace;
@@ -18,38 +21,32 @@ class Trace;
 class Cpu6502 {
 public:
 
-    Cpu6502(TransNetwork& transNetwork, AddressBus& addressBus, Trace& trace) : transNetwork(transNetwork), addressBus(addressBus), trace(trace), segs(transNetwork.segs), n(segs.c) {
-    }
+    Cpu6502(TransNetwork& transNetwork, AddressBus& addressBus, Trace& trace);
 
     virtual ~Cpu6502() {
     }
 
-    void powerOn();
-    void tick();
-    void reset();
+    typedef std::set<std::pair<Segment*, bool >> PinSettings;
+    void setPins(const PinSettings& ps);
+
+    void clock(bool phase);
 
 private:
-    Cpu6502(const Cpu6502&);
-    Cpu6502& operator=(const Cpu6502&);
 
-    void initPins();
-    void step();
-    void clock(bool phase);
+    Cpu6502(const Cpu6502&) = delete;
+    Cpu6502& operator=(const Cpu6502&) = delete;
+
     void rw();
-    void readBus();
-    void writeBus();
-    unsigned char read(unsigned short addr);
-    void write(unsigned short addr, unsigned char data);
-
-    static void setSeg(Segment* s, bool on);
+    void readData();
+    void writeData();
 
     TransNetwork& transNetwork;
     AddressBus& addressBus;
 
     Trace& trace;
-
+public:
     SegmentCache& segs;
-    SegmentCache::Common* n;
+    Common* n;
 };
 
 #endif	/* CPU6502_H */

@@ -11,6 +11,7 @@
 #include <string>
 #include <memory>
 #include <iostream>
+#include "StateCalculator.h"
 
 TransNetwork::TransNetwork(std::istream& in) {
     std::string c1, gate, c2;
@@ -21,6 +22,8 @@ TransNetwork::TransNetwork(std::istream& in) {
     }
 
     this->segs.initCommon();
+
+    StateCalculator::recalc(this->segs.all());
 }
 
 TransNetwork::~TransNetwork() {

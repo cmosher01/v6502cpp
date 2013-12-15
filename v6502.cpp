@@ -1,5 +1,6 @@
 #include "addressbus.h"
 #include "Cpu6502.h"
+#include "Cpu6502Helper.h"
 #include "TransNetwork.h"
 #include "Trace.h"
 #include <cstdlib>
@@ -36,6 +37,7 @@ int main(int argc, char *argv[]) {
     TransNetwork tn(if_trans);
     Trace trace(tn.segs);
     Cpu6502 cpu(tn, mem, trace);
+    Cpu6502Helper cpuhelper(cpu);
 
 
 
@@ -44,22 +46,22 @@ int main(int argc, char *argv[]) {
     /* turn on the CPU */
     std::cout << "----------------------------------------" << std::endl;
     std::cout << "begin power-up..." << std::endl;
-    cpu.powerOn();
+    cpuhelper.powerOn();
     std::cout << "end power-up..." << std::endl;
     std::cout << "----------------------------------------" << std::endl;
 
     /* run it a bit, before resetting */
     std::cout << "some power-up pre-reset cycles..." << std::endl;
     for (int i(0); i < 10; ++i) {
-        cpu.tick();
+        cpuhelper.tick();
     }
     std::cout << "----------------------------------------" << std::endl;
 
     /* reset the CPU, and let it run for a little while, then exit */
     std::cout << "RESET..." << std::endl;
-    cpu.reset();
+    cpuhelper.reset();
     for (int i(0); i < 50; ++i) {
-        cpu.tick();
+        cpuhelper.tick();
     }
 
     return EXIT_SUCCESS;
