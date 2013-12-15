@@ -6,6 +6,7 @@
  */
 
 #include "TransNetwork.h"
+#include "TransCache.h"
 #include "SegmentCache.h"
 #include "StateCalculator.h"
 #include "trans.h"
@@ -14,11 +15,11 @@
 #include <string>
 #include <memory>
 
-TransNetwork::TransNetwork(std::istream& in, SegmentCache& segs) : segs(segs) {
+TransNetwork::TransNetwork(std::istream& in, SegmentCache& segs, TransCache& transes) : segs(segs), transes(transes) {
     std::string c1, gate, c2;
     in >> c1 >> gate >> c2;
     while (in.good()) {
-        this->transes.insert(std::make_shared<Trans>(this->segs.getOrAdd(c1), this->segs.getOrAdd(gate), this->segs.getOrAdd(c2)));
+        this->transes.add(this->segs.getOrAdd(c1), this->segs.getOrAdd(gate), this->segs.getOrAdd(c2));
         in >> c1 >> gate >> c2;
     }
 

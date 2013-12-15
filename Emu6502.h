@@ -13,6 +13,7 @@
 #include "Trace.h"
 #include "Common.h"
 #include "TransNetwork.h"
+#include "TransCache.h"
 #include "SegmentCache.h"
 #include <istream>
 
@@ -21,7 +22,7 @@ class AddressBus;
 class Emu6502 {
 public:
 
-    Emu6502(std::istream& transistors, AddressBus& mem) : tn(transistors, segs), c(tn), trace(segs, c), cpu(mem, trace, c), cpuhelper(cpu, c) {
+    Emu6502(std::istream& transistors, AddressBus& mem) : tn(transistors, segs, transes), c(tn), trace(segs, c), cpu(mem, trace, c), cpuhelper(cpu, c) {
     }
 
     virtual ~Emu6502() {
@@ -45,6 +46,7 @@ private:
     Emu6502 operator=(const Emu6502&) = delete;
 
     SegmentCache segs;
+    TransCache transes;
     TransNetwork tn;
     Common c;
     Trace trace;

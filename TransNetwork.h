@@ -12,6 +12,7 @@
 #include <set>
 #include <memory>
 
+class TransCache;
 class SegmentCache;
 class Common;
 class Trans;
@@ -19,7 +20,7 @@ class Trans;
 class TransNetwork final {
 public:
 
-    TransNetwork(std::istream& readFromHere, SegmentCache& segs);
+    TransNetwork(std::istream& readFromHere, SegmentCache& segs, TransCache& transes);
 
 private:
 
@@ -27,7 +28,7 @@ private:
     TransNetwork& operator=(const TransNetwork&) = delete;
 
     SegmentCache& segs;
-    std::set<std::shared_ptr<Trans>> transes;
+    TransCache& transes;
 
     friend Common;
 };
