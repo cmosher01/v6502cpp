@@ -6,6 +6,7 @@
  */
 
 #include "SegmentCache.h"
+#include "trans.h"
 #include <memory>
 #include <string>
 #include <map>
@@ -41,4 +42,12 @@ Segment* SegmentCache::get(const std::string& id) const {
     }
 
     return this->cache.at(id).get();
+}
+
+setpSeg SegmentCache::all() const {
+    setpSeg s;
+    for (auto i : this->cache) {
+        s.insert(i.second.get());
+    }
+    return s;
 }

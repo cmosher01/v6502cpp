@@ -9,7 +9,10 @@
 #define	STATECALCULATOR_H
 
 #include <set>
-#include "trans.h"
+#include "setpSeg.h"
+
+class Segment;
+class Trans;
 
 class StateCalculator {
 public:

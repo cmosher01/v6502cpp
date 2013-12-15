@@ -8,13 +8,14 @@
 #ifndef SEGMENTCACHE_H
 #define	SEGMENTCACHE_H
 
-#include "trans.h"
+#include "setpSeg.h"
 #include <memory>
 #include <string>
 #include <map>
 #include <set>
 
 class Common;
+class Segment;
 
 class SegmentCache {
 public:
@@ -27,13 +28,7 @@ public:
 
     Segment* getOrAdd(const std::string& id);
 
-    setpSeg all() const {
-        setpSeg s;
-        for (auto i : this->cache) {
-            s.insert(i.second.get());
-        }
-        return s;
-    }
+    setpSeg all() const;
 
 
     std::map<const std::string, std::shared_ptr<Segment > >::const_iterator begin() const {

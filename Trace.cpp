@@ -7,6 +7,7 @@
 
 #include "Trace.h"
 #include "SegmentCache.h"
+#include "trans.h"
 #include "Common.h"
 #include <iostream>
 #include <iomanip>

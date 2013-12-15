@@ -9,7 +9,9 @@
 #define	CIRCUIT_H
 
 #include <set>
-#include "trans.h"
+#include "setpSeg.h"
+
+class Segment;
 
 /*
  * Builds a circuit, given one segment in that circuit.

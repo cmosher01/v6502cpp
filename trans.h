@@ -8,7 +8,7 @@
 #ifndef TRANS_H
 #define	TRANS_H
 
-#include "ptr_less.h"
+#include "setpSeg.h"
 #include <set>
 #include <string>
 
@@ -62,7 +62,6 @@ private:
     Segment& operator=(const Segment&) = delete;
 };
 
-typedef std::set<Segment*,ptr_less<Segment>> setpSeg;
 
 
 

@@ -8,9 +8,10 @@
 #ifndef COMMON_H
 #define	COMMON_H
 
-#include "trans.h"
+#include "setpSeg.h"
 
 class SegmentCache;
+class Segment;
 
 class Common {
 public:

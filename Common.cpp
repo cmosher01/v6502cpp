@@ -7,6 +7,7 @@
 
 #include "Common.h"
 #include "SegmentCache.h"
+#include "trans.h"
 
 Common Common::create(const SegmentCache& segs) {
     return Common(
