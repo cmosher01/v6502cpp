@@ -17,11 +17,12 @@ class Common;
 class TransNetwork;
 class AddressBus;
 class Trace;
+class Common;
 
 class Cpu6502 {
 public:
 
-    Cpu6502(TransNetwork& transNetwork, AddressBus& addressBus, Trace& trace);
+    Cpu6502(AddressBus& addressBus, Trace& trace, Common& common);
 
     virtual ~Cpu6502() {
     }
@@ -30,6 +31,7 @@ public:
     void setPins(const PinSettings& ps);
 
     void clock(bool phase);
+
 
 private:
 
@@ -40,13 +42,9 @@ private:
     void readData();
     void writeData();
 
-    TransNetwork& transNetwork;
     AddressBus& addressBus;
-
     Trace& trace;
-public:
-    SegmentCache& segs;
-    Common* n;
+    Common& common;
 };
 
 #endif	/* CPU6502_H */

@@ -12,6 +12,7 @@
 #include <memory>
 #include <iostream>
 #include "StateCalculator.h"
+#include "Common.h"
 
 TransNetwork::TransNetwork(std::istream& in) {
     std::string c1, gate, c2;
@@ -20,8 +21,6 @@ TransNetwork::TransNetwork(std::istream& in) {
         this->transes.insert(std::make_shared<Trans>(this->segs.getOrAdd(c1), this->segs.getOrAdd(gate), this->segs.getOrAdd(c2)));
         in >> c1 >> gate >> c2;
     }
-
-    this->segs.initCommon();
 
     StateCalculator::recalc(this->segs.all());
 }

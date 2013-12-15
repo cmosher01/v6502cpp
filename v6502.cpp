@@ -3,11 +3,11 @@
 #include "Cpu6502Helper.h"
 #include "TransNetwork.h"
 #include "Trace.h"
+#include "Common.h"
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <set>
-
 
 int main(int argc, char *argv[]) {
     AddressBus mem;
@@ -35,9 +35,10 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     TransNetwork tn(if_trans);
-    Trace trace(tn.segs);
-    Cpu6502 cpu(tn, mem, trace);
-    Cpu6502Helper cpuhelper(cpu);
+    Common c = Common::create(tn.segs);
+    Trace trace(tn.segs, c);
+    Cpu6502 cpu(mem, trace, c);
+    Cpu6502Helper cpuhelper(cpu, c);
 
 
 

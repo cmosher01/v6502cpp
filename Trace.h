@@ -9,10 +9,11 @@
 #define	TRACE_H
 
 class SegmentCache;
+class Common;
 
 class Trace {
 public:
-    Trace(const SegmentCache& s) : s(s) {}
+    Trace(const SegmentCache& s, const Common& common) : s(s), common(common) {}
     virtual ~Trace() {}
 
     void dumpSegments() const;
@@ -23,6 +24,7 @@ private:
     Trace& operator=(const Trace&) = delete;
 
     const SegmentCache& s;
+    const Common& common;
 };
 
 #endif	/* TRACE_H */

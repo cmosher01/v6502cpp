@@ -18,7 +18,7 @@
 #include <set>
 #include "Common.h"
 
-Cpu6502Helper::Cpu6502Helper(Cpu6502& cpu) : cpu(cpu), nextPhase(true), n(cpu.segs.c) {
+Cpu6502Helper::Cpu6502Helper(Cpu6502& cpu, Common& common) : cpu(cpu), common(common), nextPhase(true) {
 }
 
 Cpu6502Helper::~Cpu6502Helper() {
@@ -28,18 +28,18 @@ void Cpu6502Helper::powerOn() {
     Cpu6502::PinSettings ps;
 
     // set voltage supply and ground.
-    ps.insert(std::make_pair(n->VCC, true));
-    ps.insert(std::make_pair(n->VSS, false));
+    ps.insert(std::make_pair(common.VCC, true));
+    ps.insert(std::make_pair(common.VSS, false));
 
     // don't do the set-overflow overriding functionality
-    ps.insert(std::make_pair(n->SO, false));
+    ps.insert(std::make_pair(common.SO, false));
 
     // ready to run (i.e., do not do single-stepping of instructions)
-    ps.insert(std::make_pair(n->RDY, true));
+    ps.insert(std::make_pair(common.RDY, true));
 
     // pull up to indicate that we are not interrupting now
-    ps.insert(std::make_pair(n->IRQ, true));
-    ps.insert(std::make_pair(n->NMI, true));
+    ps.insert(std::make_pair(common.IRQ, true));
+    ps.insert(std::make_pair(common.NMI, true));
 
 
     /*
@@ -53,7 +53,7 @@ void Cpu6502Helper::powerOn() {
      * CPU does not start up normal operations yet. The caller can set RES_BAR high (by calling
      * reset) whenever he is ready to start the CPU running.
      */
-    ps.insert(std::make_pair(n->RES, false));
+    ps.insert(std::make_pair(common.RES, false));
 
     cpu.setPins(ps);
 
@@ -82,5 +82,5 @@ void Cpu6502Helper::step() {
 }
 
 void Cpu6502Helper::reset() {
-    cpu.setPins(Cpu6502::PinSettings{std::make_pair(n->RES, true)});
+    cpu.setPins(Cpu6502::PinSettings{std::make_pair(common.RES, true)});
 }

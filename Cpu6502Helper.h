@@ -9,13 +9,12 @@
 #define	CPU6502HELPER_H
 
 class Cpu6502;
-
 class Common;
 
 class Cpu6502Helper {
 public:
 
-    explicit Cpu6502Helper(Cpu6502& cpu);
+    explicit Cpu6502Helper(Cpu6502& cpu, Common& common);
     virtual ~Cpu6502Helper();
 
     void powerOn();
@@ -30,9 +29,8 @@ private:
     void step();
 
     Cpu6502& cpu;
+    Common& common;
     bool nextPhase;
-
-    Common* n;
 };
 
 #endif	/* CPU6502HELPER_H */

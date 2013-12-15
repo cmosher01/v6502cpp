@@ -19,10 +19,11 @@ class Common;
 class SegmentCache {
 public:
 
-    SegmentCache() : c(nullptr) {
+    SegmentCache() {
     }
 
-    virtual ~SegmentCache();
+    virtual ~SegmentCache() {
+    }
 
     Segment* getOrAdd(const std::string& id);
 
@@ -34,17 +35,6 @@ public:
         return s;
     }
 
-
-    unsigned char rData() const;
-    unsigned short rAddr() const;
-    unsigned char rA() const;
-    unsigned char rX() const;
-    unsigned char rY() const;
-    unsigned char rS() const;
-    unsigned short rPC() const;
-
-    void setDataSegs(const unsigned char data);
-    void addDataToRecalc(setpSeg& s) const;
 
     std::map<const std::string, std::shared_ptr<Segment > >::const_iterator begin() const {
         return this->cache.begin();
@@ -61,10 +51,9 @@ private:
     SegmentCache& operator=(const SegmentCache&) = delete;
 
     Segment* get(const std::string& id) const;
+    bool cached(const std::string& id) const;
 
-public:
-    void initCommon();
-    Common* c;
+    friend Common;
 };
 
 #endif	/* SEGMENTCACHE_H */

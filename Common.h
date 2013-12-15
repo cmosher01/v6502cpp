@@ -8,11 +8,14 @@
 #ifndef COMMON_H
 #define	COMMON_H
 
-class Segment;
+#include "trans.h"
+
 class SegmentCache;
 
 class Common {
 public:
+    static Common create(const SegmentCache& segs);
+
     Segment *VSS, *VCC;
     Segment *CLK0;
     Segment *IRQ, *RES, *NMI;
@@ -30,6 +33,17 @@ public:
     Segment *S0, *S1, *S2, *S3, *S4, *S5, *S6, *S7;
 
 
+
+    unsigned char rA() const;
+    unsigned char rX() const;
+    unsigned char rY() const;
+    unsigned char rS() const;
+    unsigned short rPC() const;
+    unsigned short rAddr() const;
+    unsigned char rData() const;
+
+    void setDataSegs(const unsigned char data);
+    void addDataToRecalc(setpSeg& s) const;
 
 
 
@@ -68,14 +82,6 @@ private:
     P0(P0), P1(P1), P2(P2), P3(P3), P4(P4), /* no P5 */ P6(P6), P7(P7),
     S0(S0), S1(S1), S2(S2), S3(S3), S4(S4), S5(S5), S6(S6), S7(S7) {
     }
-
-    ~Common() {
-    }
-
-    Common(const Common&) = delete;
-    Common& operator=(const Common&) = delete;
-
-    friend SegmentCache;
 };
 
 #endif	/* COMMON_H */

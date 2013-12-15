@@ -1,4 +1,4 @@
-CXXFLAGS=-g -std=c++11 -Wall -O0
+CXXFLAGS=-g -std=c++11 -Wall -O3
 
 SRCS = v6502.cpp SegmentCache.cpp Common.cpp TransNetwork.cpp Trace.cpp Circuit.cpp StateCalculator.cpp Cpu6502.cpp Cpu6502Helper.cpp
 OBJS = $(SRCS:.cpp=.o)

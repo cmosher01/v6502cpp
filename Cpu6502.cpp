@@ -22,7 +22,7 @@
 
 
 
-Cpu6502::Cpu6502(TransNetwork& transNetwork, AddressBus& addressBus, Trace& trace) : transNetwork(transNetwork), addressBus(addressBus), trace(trace), segs(transNetwork.segs), n(segs.c) {
+Cpu6502::Cpu6502(AddressBus& addressBus, Trace& trace, Common& common) : addressBus(addressBus), trace(trace), common(common) {
 }
 
 void Cpu6502::setPins(const PinSettings& ps) {
@@ -35,7 +35,7 @@ void Cpu6502::setPins(const PinSettings& ps) {
 }
 
 void Cpu6502::clock(bool phase) {
-    setPins(PinSettings{std::make_pair(n->CLK0,phase)});
+    setPins(PinSettings{std::make_pair(common.CLK0,phase)});
     rw();
 
 #ifdef TRACEREG
@@ -48,26 +48,25 @@ void Cpu6502::clock(bool phase) {
 }
 
 void Cpu6502::rw() {
-    // database read/write happens during Clock Phase 2 (only)
-    if (n->CLK2OUT->on) {
+    /* database read/write happens (only) during Clock Phase 2 */
+    if (common.CLK2OUT->on) {
         readData();
         writeData();
     }
 }
 
 void Cpu6502::readData() {
-    if (this->transNetwork.segs.c->RW->on) {
-        this->transNetwork.segs.setDataSegs(this->addressBus.read(this->transNetwork.segs.rAddr()));
+    if (this->common.RW->on) {
+        this->common.setDataSegs(this->addressBus.read(this->common.rAddr()));
 
-        //???? TODO ???? can this be inside the if block ????
         setpSeg s;
-        segs.addDataToRecalc(s);
+        this->common.addDataToRecalc(s);
         StateCalculator::recalc(s);
     }
 }
 
 void Cpu6502::writeData() {
-    if (!this->transNetwork.segs.c->RW->on) {
-        this->addressBus.write(this->transNetwork.segs.rAddr(), this->transNetwork.segs.rData());
+    if (!this->common.RW->on) {
+        this->addressBus.write(this->common.rAddr(), this->common.rData());
     }
 }

@@ -41,41 +41,41 @@ void Trace::dumpSegments() const {
 
 void Trace::dumpRegisters() const {
     std::cout << "A";
-    pHexb(s.rA());
+    pHexb(common.rA());
     std::cout << " X";
-    pHexb(s.rX());
+    pHexb(common.rX());
     std::cout << " Y";
-    pHexb(s.rY());
+    pHexb(common.rY());
     std::cout << " ";
-    std::cout << (s.c->P7->on ? "N" : "n");
-    std::cout << (s.c->P6->on ? "V" : "v");
+    std::cout << (this->common.P7->on ? "N" : "n");
+    std::cout << (this->common.P6->on ? "V" : "v");
     std::cout << ".";
-    std::cout << (s.c->P4->on ? "B" : "b");
-    std::cout << (s.c->P3->on ? "D" : "d");
-    std::cout << (s.c->P2->on ? "I" : "i");
-    std::cout << (s.c->P1->on ? "Z" : "z");
-    std::cout << (s.c->P0->on ? "C" : "c");
+    std::cout << (this->common.P4->on ? "B" : "b");
+    std::cout << (this->common.P3->on ? "D" : "d");
+    std::cout << (this->common.P2->on ? "I" : "i");
+    std::cout << (this->common.P1->on ? "Z" : "z");
+    std::cout << (this->common.P0->on ? "C" : "c");
     std::cout << " S";
-    pHexb(s.rS());
+    pHexb(common.rS());
     std::cout << " PC";
-    pHexw(s.rPC());
-    if (s.c->CLK1OUT->on) {
+    pHexw(common.rPC());
+    if (this->common.CLK1OUT->on) {
         std::cout << "  PH1  ";
     }
-    if (s.c->CLK2OUT->on) {
+    if (this->common.CLK2OUT->on) {
         std::cout << "  PH2";
-        if (s.c->RW->on) {
+        if (this->common.RW->on) {
             std::cout << " R";
         } else {
             std::cout << " W";
         }
     }
-    if (!(s.c->CLK1OUT->on || s.c->CLK2OUT->on)) {
+    if (!(this->common.CLK1OUT->on || this->common.CLK2OUT->on)) {
         std::cout << "  PH-  ";
     }
     std::cout << " DB";
-    pHexb(s.rData());
+    pHexb(common.rData());
     std::cout << " AB";
-    pHexw(s.rAddr());
+    pHexw(common.rAddr());
     std::cout << std::endl;
 }
