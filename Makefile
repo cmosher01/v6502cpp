@@ -22,7 +22,7 @@ v6502: $(OBJS)
 
 
 clean:
-	-rm -f v6502 v6502.exe $(OBJS) $(DEPS)
+	-rm -Rf v6502 v6502.exe $(OBJS) $(DEPS) doxygen
 
 
 

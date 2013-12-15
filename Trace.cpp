@@ -27,10 +27,9 @@ static void pHexw(const unsigned short x) {
 void Trace::dumpSegments() const {
     for (auto sp : this->s) {
         Segment* seg = sp.second.get();
-        assert(!(seg->pullup && seg->pulldown));
-        if (seg->pullup) {
+        if (seg->pull == Pull::UP) {
             std::cout << (seg->on ? "U" : "u");
-        } else if (seg->pulldown) {
+        } else if (seg->pull == Pull::DOWN) {
             std::cout << (seg->on ? "D" : "d");
         } else {
             std::cout << (seg->on ? "F" : "f");

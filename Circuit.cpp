@@ -64,10 +64,10 @@ bool Circuit::getValue() {
     }
     /* otherwise, this test: */
     for (auto s : this->segs) {
-        if (s->pullup) {
+        if (s->pull == Pull::UP) {
             return true;
         }
-        if (s->pulldown) {
+        if (s->pull == Pull::DOWN) {
             return false;
         }
         if (s->on) {
