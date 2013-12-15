@@ -6,27 +6,28 @@
  */
 
 #include "Common.h"
+#include "TransNetwork.h"
 #include "SegmentCache.h"
 #include "trans.h"
 
-Common Common::create(const SegmentCache& segs) {
-    return Common(
-            segs.get("-vss"), segs.get("+vcc"),
-            segs.get("-clk0"),
-            segs.get("-irq"), segs.get("-res"), segs.get("-nmi"),
-            segs.get("+rdy"), segs.get("+so"),
-            segs.get("-db0"), segs.get("-db1"), segs.get("-db2"), segs.get("-db3"), segs.get("-db4"), segs.get("-db5"), segs.get("-db6"), segs.get("-db7"),
-            segs.get("-ab0"), segs.get("-ab1"), segs.get("-ab2"), segs.get("-ab3"), segs.get("-ab4"), segs.get("-ab5"), segs.get("-ab6"), segs.get("-ab7"),
-            segs.get("-ab8"), segs.get("-ab9"), segs.get("-ab10"), segs.get("-ab11"), segs.get("-ab12"), segs.get("-ab13"), segs.get("-ab14"), segs.get("-ab15"),
-            segs.get("-rw"), segs.get("-sync"),
-            segs.get("-clk1out"), segs.get("-clk2out"),
-            segs.get("-a0"), segs.get("-a1"), segs.get("-a2"), segs.get("-a3"), segs.get("-a4"), segs.get("-a5"), segs.get("-a6"), segs.get("-a7"),
-            segs.get("-x0"), segs.get("-x1"), segs.get("-x2"), segs.get("-x3"), segs.get("-x4"), segs.get("-x5"), segs.get("-x6"), segs.get("-x7"),
-            segs.get("-y0"), segs.get("-y1"), segs.get("-y2"), segs.get("-y3"), segs.get("-y4"), segs.get("-y5"), segs.get("-y6"), segs.get("-y7"),
-            segs.get("-pcl0"), segs.get("-pcl1"), segs.get("-pcl2"), segs.get("-pcl3"), segs.get("-pcl4"), segs.get("-pcl5"), segs.get("-pcl6"), segs.get("-pcl7"),
-            segs.get("-pch0"), segs.get("-pch1"), segs.get("-pch2"), segs.get("-pch3"), segs.get("-pch4"), segs.get("-pch5"), segs.get("-pch6"), segs.get("-pch7"),
-            segs.get("+Pout0"), segs.get("+Pout1"), segs.get("+Pout2"), segs.get("+Pout3"), segs.get("+Pout4"), /*no P5 */segs.get("+Pout6"), segs.get("+Pout7"),
-            segs.get("-s0"), segs.get("-s1"), segs.get("-s2"), segs.get("-s3"), segs.get("-s4"), segs.get("-s5"), segs.get("-s6"), segs.get("-s7"));
+Common::Common(const TransNetwork& tn) :
+Common(
+    tn.segs.get("-vss"), tn.segs.get("+vcc"),
+    tn.segs.get("-clk0"),
+    tn.segs.get("-irq"), tn.segs.get("-res"), tn.segs.get("-nmi"),
+    tn.segs.get("+rdy"), tn.segs.get("+so"),
+    tn.segs.get("-db0"), tn.segs.get("-db1"), tn.segs.get("-db2"), tn.segs.get("-db3"), tn.segs.get("-db4"), tn.segs.get("-db5"), tn.segs.get("-db6"), tn.segs.get("-db7"),
+    tn.segs.get("-ab0"), tn.segs.get("-ab1"), tn.segs.get("-ab2"), tn.segs.get("-ab3"), tn.segs.get("-ab4"), tn.segs.get("-ab5"), tn.segs.get("-ab6"), tn.segs.get("-ab7"),
+    tn.segs.get("-ab8"), tn.segs.get("-ab9"), tn.segs.get("-ab10"), tn.segs.get("-ab11"), tn.segs.get("-ab12"), tn.segs.get("-ab13"), tn.segs.get("-ab14"), tn.segs.get("-ab15"),
+    tn.segs.get("-rw"), tn.segs.get("-sync"),
+    tn.segs.get("-clk1out"), tn.segs.get("-clk2out"),
+    tn.segs.get("-a0"), tn.segs.get("-a1"), tn.segs.get("-a2"), tn.segs.get("-a3"), tn.segs.get("-a4"), tn.segs.get("-a5"), tn.segs.get("-a6"), tn.segs.get("-a7"),
+    tn.segs.get("-x0"), tn.segs.get("-x1"), tn.segs.get("-x2"), tn.segs.get("-x3"), tn.segs.get("-x4"), tn.segs.get("-x5"), tn.segs.get("-x6"), tn.segs.get("-x7"),
+    tn.segs.get("-y0"), tn.segs.get("-y1"), tn.segs.get("-y2"), tn.segs.get("-y3"), tn.segs.get("-y4"), tn.segs.get("-y5"), tn.segs.get("-y6"), tn.segs.get("-y7"),
+    tn.segs.get("-pcl0"), tn.segs.get("-pcl1"), tn.segs.get("-pcl2"), tn.segs.get("-pcl3"), tn.segs.get("-pcl4"), tn.segs.get("-pcl5"), tn.segs.get("-pcl6"), tn.segs.get("-pcl7"),
+    tn.segs.get("-pch0"), tn.segs.get("-pch1"), tn.segs.get("-pch2"), tn.segs.get("-pch3"), tn.segs.get("-pch4"), tn.segs.get("-pch5"), tn.segs.get("-pch6"), tn.segs.get("-pch7"),
+    tn.segs.get("+Pout0"), tn.segs.get("+Pout1"), tn.segs.get("+Pout2"), tn.segs.get("+Pout3"), tn.segs.get("+Pout4"), /*no P5 */tn.segs.get("+Pout6"), tn.segs.get("+Pout7"),
+    tn.segs.get("-s0"), tn.segs.get("-s1"), tn.segs.get("-s2"), tn.segs.get("-s3"), tn.segs.get("-s4"), tn.segs.get("-s5"), tn.segs.get("-s6"), tn.segs.get("-s7")) {
 }
 
 unsigned short Common::rAddr() const {

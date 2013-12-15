@@ -13,8 +13,9 @@
 #include <iostream>
 #include "StateCalculator.h"
 #include "Common.h"
+#include "SegmentCache.h"
 
-TransNetwork::TransNetwork(std::istream& in) {
+TransNetwork::TransNetwork(std::istream& in, SegmentCache& segs) : segs(segs) {
     std::string c1, gate, c2;
     in >> c1 >> gate >> c2;
     while (in.good()) {

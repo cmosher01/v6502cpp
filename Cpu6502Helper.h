@@ -14,7 +14,7 @@ class Common;
 class Cpu6502Helper {
 public:
 
-    explicit Cpu6502Helper(Cpu6502& cpu, Common& common);
+    Cpu6502Helper(Cpu6502& cpu, Common& common);
     virtual ~Cpu6502Helper();
 
     void powerOn();

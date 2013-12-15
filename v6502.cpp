@@ -1,13 +1,9 @@
+#include "Emu6502.h"
 #include "addressbus.h"
-#include "Cpu6502.h"
-#include "Cpu6502Helper.h"
-#include "TransNetwork.h"
-#include "Trace.h"
-#include "Common.h"
-#include <cstdlib>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <set>
+#include <cstdlib>
 
 int main(int argc, char *argv[]) {
     AddressBus mem;
@@ -30,15 +26,17 @@ int main(int argc, char *argv[]) {
 
 
     std::ifstream if_trans("transistors");
+
     if (!if_trans.is_open()) {
         std::cerr << "error opening file: transistors" << std::endl;
         exit(EXIT_FAILURE);
     }
-    TransNetwork tn(if_trans);
-    Common c = Common::create(tn.segs);
-    Trace trace(tn.segs, c);
-    Cpu6502 cpu(mem, trace, c);
-    Cpu6502Helper cpuhelper(cpu, c);
+    
+
+
+
+
+    Emu6502 emu(if_trans, mem);
 
 
 
@@ -47,23 +45,27 @@ int main(int argc, char *argv[]) {
     /* turn on the CPU */
     std::cout << "----------------------------------------" << std::endl;
     std::cout << "begin power-up..." << std::endl;
-    cpuhelper.powerOn();
+    emu.powerOn();
     std::cout << "end power-up..." << std::endl;
     std::cout << "----------------------------------------" << std::endl;
 
     /* run it a bit, before resetting */
     std::cout << "some power-up pre-reset cycles..." << std::endl;
     for (int i(0); i < 10; ++i) {
-        cpuhelper.tick();
+        emu.tick();
     }
     std::cout << "----------------------------------------" << std::endl;
 
     /* reset the CPU, and let it run for a little while, then exit */
     std::cout << "RESET..." << std::endl;
-    cpuhelper.reset();
+    emu.reset();
     for (int i(0); i < 50; ++i) {
-        cpuhelper.tick();
+        emu.tick();
     }
+
+
+
+
 
     return EXIT_SUCCESS;
 }

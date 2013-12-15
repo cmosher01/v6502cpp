@@ -10,13 +10,11 @@
 
 #include "setpSeg.h"
 
-class SegmentCache;
+class TransNetwork;
 class Segment;
 
 class Common {
 public:
-    static Common create(const SegmentCache& segs);
-
     Segment *VSS, *VCC;
     Segment *CLK0;
     Segment *IRQ, *RES, *NMI;
@@ -47,6 +45,7 @@ public:
     void addDataToRecalc(setpSeg& s) const;
 
 
+    Common(const TransNetwork& segs);
 
 private:
     Common(

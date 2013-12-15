@@ -14,8 +14,8 @@
 #include <map>
 #include <set>
 
-class Common;
 class Segment;
+class Common;
 
 class SegmentCache {
 public:

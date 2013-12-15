@@ -9,17 +9,17 @@
 #define	TRANSNETWORK_H
 
 class Trans;
-#include "SegmentCache.h"
 #include <set>
 #include <memory>
 #include <istream>
 
+class SegmentCache;
+class Common;
+
 class TransNetwork {
 public:
 
-    SegmentCache segs;
-
-    TransNetwork(std::istream& readFromHere);
+    TransNetwork(std::istream& readFromHere, SegmentCache& segs);
     virtual ~TransNetwork();
 
 private:
@@ -27,7 +27,10 @@ private:
     TransNetwork(const TransNetwork&) = delete;
     TransNetwork& operator=(const TransNetwork&) = delete;
 
+    SegmentCache& segs;
     std::set<std::shared_ptr<Trans >> transes;
+
+    friend Common;
 };
 
 #endif	/* TRANSNETWORK_H */
