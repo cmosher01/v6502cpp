@@ -2,4 +2,5 @@
 *.d
 v6502
 v6502.exe
+/doxygen/
 /nbproject/
