@@ -9,15 +9,17 @@
 #define	TRACE_H
 
 class SegmentCache;
+class TransCache;
 class Common;
 
 class Trace final {
 public:
 
-    Trace(const SegmentCache& segs, const Common& common) : segs(segs), common(common) {
+    Trace(const SegmentCache& segs, const TransCache& transes, const Common& common) : segs(segs), transes(transes), common(common) {
     }
 
     void dumpSegments() const;
+    void dumpTransistors() const;
     void dumpRegisters() const;
 
 private:
@@ -26,6 +28,7 @@ private:
     Trace& operator=(const Trace&) = delete;
 
     const SegmentCache& segs;
+    const TransCache& transes;
     const Common& common;
 };
 

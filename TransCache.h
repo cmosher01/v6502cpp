@@ -22,12 +22,26 @@ public:
 
     void add(Segment* c1, Segment* gate, Segment* c2);
 
+    typedef std::set<std::shared_ptr<Trans>> Set;
+
+    Set::const_iterator begin() const {
+        return this->cache.begin();
+    }
+
+    Set::const_iterator end() const {
+        return this->cache.end();
+    }
+
+    Set::size_type size() const {
+        return this->cache.size();
+    }
+
 private:
 
     TransCache(const TransCache&) = delete;
     TransCache& operator=(const TransCache&) = delete;
 
-    std::set<std::shared_ptr<Trans>> cache;
+    Set cache;
 };
 
 #endif	/* TRANSCACHE_H */

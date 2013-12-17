@@ -38,6 +38,10 @@ public:
         return this->cache.end();
     }
 
+    Map::size_type size() const {
+        return this->cache.size();
+    }
+
 private:
 
     Map cache;

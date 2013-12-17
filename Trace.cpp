@@ -6,6 +6,7 @@
  */
 
 #include "Trace.h"
+#include "TransCache.h"
 #include "SegmentCache.h"
 #include "Common.h"
 #include "trans.h"
@@ -86,4 +87,17 @@ void Trace::dumpRegisters() const {
     pHexw(this->common.rAddr());
 
     std::cout << std::endl;
+}
+
+void Trace::dumpTransistors() const {
+    /* count depletion-mode MOSFETs */
+    int cd(0);
+    for (auto sp : this->segs) {
+        Segment* seg = sp.second.get();
+        if (seg->dmos) {
+            ++cd;
+        }
+    }
+    
+    std::cout << "eMOSFETs: " << this->transes.size() << ", dMOSFETs: " << cd << std::endl;
 }

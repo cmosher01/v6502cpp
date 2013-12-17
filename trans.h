@@ -25,6 +25,7 @@ private:
 public:
     std::set<Trans*> gates;
     std::set<Trans*> c1c2s;
+    bool dmos;
     bool vss;
     bool vcc;
 
@@ -33,7 +34,7 @@ public:
 
 
 
-    Segment(const std::string& id) : id(id), vss(false), vcc(false), pull(id[0]=='+' ? Pull::UP : Pull::FLOAT), on(false) {
+    Segment(const std::string& id) : id(id), dmos(id[0]=='+'), vss(false), vcc(false), pull(dmos ? Pull::UP : Pull::FLOAT), on(false) {
     }
 
 

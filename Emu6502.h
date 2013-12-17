@@ -22,7 +22,7 @@ class AddressBus;
 class Emu6502 {
 public:
 
-    Emu6502(std::istream& transistors, AddressBus& mem) : tn(transistors, segs, transes), c(tn), trace(segs, c), cpu(mem, trace, c), cpuhelper(cpu, c) {
+    Emu6502(std::istream& transistors, AddressBus& mem) : tn(transistors, segs, transes), c(tn), trace(segs, transes, c), cpu(mem, trace, c), cpuhelper(cpu, c) {
     }
 
     virtual ~Emu6502() {

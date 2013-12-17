@@ -9,6 +9,7 @@
 #define	CPU6502_H
 
 #include "SegmentTypes.h"
+#include "Trace.h"
 
 class AddressBus;
 class Trace;
@@ -18,6 +19,9 @@ class Cpu6502 final {
 public:
 
     Cpu6502(AddressBus& addressBus, Trace& trace, Common& common) : addressBus(addressBus), trace(trace), common(common) {
+#if 0
+        trace.dumpTransistors();
+#endif
     }
 
     void setPins(const PinSettings& ps);
